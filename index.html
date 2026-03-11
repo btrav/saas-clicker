@@ -1,0 +1,2669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upstart Startup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --border: #2a2a3a;
+    --border2: #3a3a50;
+    --text: #e8e8f0;
+    --text2: #9090a8;
+    --text3: #5a5a72;
+    --accent: #6366f1;
+    --accent2: #818cf8;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --orange: #f97316;
+    --purple: #a855f7;
+    --cyan: #06b6d4;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  #app { display: flex; flex-direction: column; height: 100vh; }
+
+  /* HEADER */
+  #header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  #header h1 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: -0.3px;
+  }
+
+  #company-stage {
+    font-size: 18px;
+  }
+
+  #header-stats {
+    display: flex;
+    gap: 20px;
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .hstat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .hstat-label { color: var(--text3); font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .hstat-val { color: var(--text); font-weight: 500; }
+  .hstat-val.green { color: var(--green); }
+  .hstat-val.red { color: var(--red); }
+  .hstat-val.yellow { color: var(--yellow); }
+
+  #ipos-badge {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--yellow);
+    font-family: var(--mono);
+  }
+
+  /* MAIN LAYOUT */
+  #main {
+    display: grid;
+    grid-template-columns: 260px 1fr 280px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* PANELS */
+  .panel {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .panel:last-child { border-right: none; }
+
+  .panel-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text3);
+    font-weight: 600;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* CLICK AREA */
+  #click-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 16px 12px;
+    gap: 16px;
+  }
+
+  #company-visual {
+    text-align: center;
+    padding: 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 100%;
+  }
+
+  #stage-emoji {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  #company-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent2);
+  }
+
+  #stage-label {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  #click-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent), #4f46e5);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.1s;
+    font-family: var(--sans);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #click-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+  #click-btn:active { transform: translateY(1px) scale(0.99); filter: brightness(0.95); }
+
+  #click-btn-sub {
+    font-size: 11px;
+    opacity: 0.8;
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  /* CLICK FLOATS */
+  .click-float {
+    position: fixed;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+    font-family: var(--mono);
+    pointer-events: none;
+    animation: floatUp 0.9s ease-out forwards;
+    z-index: 999;
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-50px); }
+  }
+
+  /* STATS BLOCK */
+  .stats-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+  }
+
+  .stats-block-title {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    border-bottom: 1px solid #1e1e2a;
+    font-size: 12px;
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+  .stat-key { color: var(--text2); }
+  .stat-val { color: var(--text); font-family: var(--mono); font-size: 11px; }
+  .stat-val.green { color: var(--green); }
+  .stat-val.red { color: var(--red); }
+  .stat-val.yellow { color: var(--yellow); }
+  .stat-val.orange { color: var(--orange); }
+
+  /* RUNWAY BAR */
+  #runway-bar-wrap {
+    margin-top: 6px;
+  }
+
+  #runway-bar-bg {
+    width: 100%;
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  #runway-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s, background 0.5s;
+  }
+
+  /* UPGRADES PANEL */
+  #upgrades-panel {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .upgrade-section-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text3);
+    font-weight: 600;
+    padding: 6px 0 4px;
+    margin-top: 6px;
+  }
+
+  .upgrade-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .upgrade-card:hover:not(.locked):not(.bought) {
+    border-color: var(--accent);
+    background: #1a1a2a;
+  }
+
+  .upgrade-card.affordable { border-color: var(--accent); }
+  .upgrade-card.locked { opacity: 0.4; cursor: not-allowed; }
+  .upgrade-card.bought {
+    opacity: 0.5;
+    cursor: default;
+    border-color: var(--border);
+  }
+
+  .upgrade-card.bought::after {
+    content: 'OWNED';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 9px;
+    color: var(--green);
+    font-family: var(--mono);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .upgrade-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .upgrade-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .upgrade-cost {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--yellow);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .upgrade-cost.cant-afford { color: var(--red); }
+
+  .upgrade-desc {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+
+  .upgrade-tag {
+    display: inline-block;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 600;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .tag-auto { background: #1e2a3a; color: var(--cyan); }
+  .tag-team { background: #2a1e3a; color: var(--purple); }
+  .tag-plan { background: #1e3a2a; color: var(--green); }
+  .tag-upgrade { background: #3a2a1e; color: var(--orange); }
+
+  /* HIRE CARD (for team members with monthly cost) */
+  .hire-card { background: var(--bg2); }
+
+  .hire-monthly {
+    font-size: 10px;
+    color: var(--red);
+    font-family: var(--mono);
+    margin-top: 2px;
+  }
+
+  /* EVENTS */
+  #event-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+  }
+
+  #event-overlay.hidden { display: none; }
+
+  .event-modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .event-type {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  .event-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+
+  .event-body {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 18px;
+    line-height: 1.6;
+  }
+
+  .event-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .event-choice {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 12px;
+  }
+
+  .event-choice:hover { border-color: var(--accent); background: #1e1e2e; }
+
+  .event-choice-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .event-choice-desc {
+    color: var(--text2);
+    font-size: 11px;
+  }
+
+  /* FUNDING MODAL */
+  #funding-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+  }
+
+  #funding-overlay.hidden { display: none; }
+
+  .funding-modal {
+    background: var(--bg2);
+    border: 1px solid var(--purple);
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 520px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(100,0,200,0.2);
+  }
+
+  .funding-round-label {
+    font-size: 11px;
+    color: var(--purple);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .funding-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .funding-desc {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .term-sheets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .term-sheet {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .term-sheet:hover { border-color: var(--purple); background: #1e1a2e; }
+
+  .term-sheet-amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green);
+    font-family: var(--mono);
+    margin-bottom: 4px;
+  }
+
+  .term-sheet-equity {
+    font-size: 12px;
+    color: var(--red);
+    font-family: var(--mono);
+    margin-bottom: 8px;
+  }
+
+  .term-sheet-desc {
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+
+  /* GAME OVER */
+  #gameover-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    backdrop-filter: blur(6px);
+  }
+
+  #gameover-overlay.hidden { display: none; }
+
+  .gameover-modal {
+    background: var(--bg2);
+    border: 1px solid var(--red);
+    border-radius: 16px;
+    padding: 36px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(239,68,68,0.2);
+  }
+
+  .gameover-emoji { font-size: 56px; margin-bottom: 12px; }
+
+  .gameover-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 8px;
+  }
+
+  .gameover-body {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* HALL OF FAME */
+  #hof-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    backdrop-filter: blur(8px);
+  }
+
+  #hof-overlay.hidden { display: none; }
+
+  .hof-modal {
+    background: var(--bg2);
+    border: 1px solid var(--yellow);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 480px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(234,179,8,0.2);
+  }
+
+  .hof-emoji { font-size: 64px; margin-bottom: 12px; }
+
+  .hof-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--yellow);
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+  }
+
+  .hof-body {
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 24px;
+    line-height: 1.7;
+  }
+
+  .hof-stats {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+
+  /* IPO SCREEN */
+  #ipo-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 150;
+    backdrop-filter: blur(6px);
+  }
+
+  #ipo-overlay.hidden { display: none; }
+
+  .ipo-modal {
+    background: var(--bg2);
+    border: 1px solid var(--yellow);
+    border-radius: 20px;
+    padding: 36px;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(234,179,8,0.3);
+  }
+
+  .ipo-emoji { font-size: 56px; margin-bottom: 10px; }
+
+  .ipo-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--yellow);
+    margin-bottom: 8px;
+  }
+
+  .ipo-body {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .ipo-bonus {
+    background: var(--bg3);
+    border: 1px solid var(--yellow);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--yellow);
+    font-family: var(--mono);
+  }
+
+  /* NOTIFICATION */
+  #notif-container {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 90;
+    pointer-events: none;
+  }
+
+  .notif {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text);
+    animation: slideIn 0.25s ease-out, fadeOut 0.4s 2.5s ease-in forwards;
+    max-width: 280px;
+    line-height: 1.4;
+  }
+
+  .notif.success { border-color: var(--green); }
+  .notif.warn { border-color: var(--yellow); }
+  .notif.danger { border-color: var(--red); }
+  .notif.info { border-color: var(--cyan); }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  /* BUTTONS */
+  .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-primary:hover { filter: brightness(1.2); }
+
+  .btn-danger {
+    background: var(--red);
+    color: white;
+  }
+
+  .btn-danger:hover { filter: brightness(1.2); }
+
+  .btn-gold {
+    background: var(--yellow);
+    color: #000;
+  }
+
+  .btn-gold:hover { filter: brightness(1.1); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: var(--bg3);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s;
+  }
+
+  .progress-label {
+    font-size: 10px;
+    color: var(--text3);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+
+  /* MILESTONE ROW */
+  .milestone-row {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+
+  .milestone-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 4px;
+  }
+
+  /* TOOLTIP */
+  [data-tip] { position: relative; }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 11px;
+    color: var(--text2);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 50;
+  }
+
+  [data-tip]:hover::after { opacity: 1; }
+
+  /* ACTIVE EFFECTS */
+  .effect-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 10px;
+    color: var(--text2);
+    margin: 2px;
+  }
+
+  .effect-badge.active { border-color: var(--orange); color: var(--orange); }
+
+  /* CHURN WARNING PULSE */
+  @keyframes pulse-red {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .danger-pulse { animation: pulse-red 1s ease-in-out infinite; }
+
+  /* RESPONSIVE helpers */
+  .flex-center { display: flex; align-items: center; justify-content: center; }
+  .gap-2 { gap: 8px; }
+  .mt-2 { margin-top: 8px; }
+  .w-full { width: 100%; }
+
+  /* MOBILE TAB BAR */
+  #mobile-tabs {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    z-index: 80;
+    height: 56px;
+  }
+
+  #mobile-tabs .tab-bar {
+    display: flex;
+    height: 100%;
+  }
+
+  #mobile-tabs .tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-family: var(--sans);
+    font-size: 10px;
+    cursor: pointer;
+    transition: color 0.15s;
+    padding-bottom: 4px;
+  }
+
+  #mobile-tabs .tab-btn.active { color: var(--accent2); }
+  #mobile-tabs .tab-btn .tab-icon { font-size: 18px; line-height: 1; }
+
+  @media (max-width: 700px) {
+    #mobile-tabs { display: block; }
+
+    #app { height: 100dvh; }
+
+    /* Stack panels vertically, only show active one */
+    #main {
+      display: block;
+      overflow: hidden;
+      position: relative;
+      flex: 1;
+    }
+
+    .panel {
+      display: none;
+      height: 100%;
+      overflow-y: auto;
+      border-right: none;
+      padding-bottom: 64px; /* room for tab bar */
+    }
+
+    .panel.tab-active { display: flex; }
+
+    /* Header: collapse stats into key ones only */
+    #header-stats { gap: 10px; }
+    #header-stats .hstat:nth-child(3),
+    #header-stats .hstat:nth-child(5) { display: none; }
+
+    #header h1 { font-size: 13px; }
+    #company-name-header { display: none; }
+    #ipos-badge { font-size: 10px; padding: 3px 6px; }
+
+    /* Bigger click button on touch */
+    #click-btn {
+      padding: 20px 16px;
+      font-size: 16px;
+      border-radius: 14px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #click-btn:active { transform: scale(0.97); }
+
+    /* Upgrade cards easier to tap */
+    .upgrade-card { padding: 12px; margin-bottom: 8px; }
+    .upgrade-name { font-size: 13px; }
+
+    /* Notification bottom offset above tab bar */
+    #notif-container { bottom: 66px; }
+
+    /* Term sheets stack on mobile */
+    .term-sheets { grid-template-columns: 1fr; }
+
+    /* Event/funding/IPO modals: fit small screens */
+    .event-modal,
+    .funding-modal,
+    .ipo-modal,
+    .gameover-modal,
+    .hof-modal {
+      padding: 20px 16px;
+      border-radius: 12px;
+    }
+  }
+
+
+  /* Employee list */
+  .employee-list { display: flex; flex-direction: column; gap: 4px; }
+
+  .employee-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    padding: 4px 6px;
+    background: var(--bg3);
+    border-radius: 4px;
+  }
+
+  .employee-name { color: var(--text); }
+  .employee-role { color: var(--text3); font-size: 10px; }
+  .employee-cost { color: var(--red); font-family: var(--mono); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <div id="header">
+    <span id="company-stage">🌱</span>
+    <h1>Upstart Startup</h1>
+    <span id="company-name-header" style="color:var(--text2);font-size:12px;"></span>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+      <div id="ipos-badge">🏆 IPOs: <span id="ipo-count-display">0</span>/3</div>
+      <div id="header-stats">
+        <div class="hstat">
+          <span class="hstat-label">Cash</span>
+          <span class="hstat-val green" id="h-cash">$0</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-label">MRR</span>
+          <span class="hstat-val" id="h-mrr">$0</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-label">Burn</span>
+          <span class="hstat-val red" id="h-burn">$0</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-label">Runway</span>
+          <span class="hstat-val yellow" id="h-runway">--</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-label">Equity</span>
+          <span class="hstat-val" id="h-equity">100%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+
+    <!-- LEFT: CLICK + STATS -->
+    <div class="panel tab-active" id="click-panel">
+
+      <div id="company-visual">
+        <span id="stage-emoji">🌱</span>
+        <div id="company-name">Your Startup</div>
+        <div id="stage-label">Idea Stage</div>
+      </div>
+
+      <button id="click-btn" onclick="handleClick(event)">
+        <div>📣 Acquire User</div>
+        <div id="click-btn-sub" class="click-btn-sub">+<span id="click-power-display">1</span> user per click</div>
+      </button>
+
+      <!-- Funding milestone progress -->
+      <div class="milestone-row" id="milestone-wrap">
+        <div class="milestone-title" id="milestone-title">Next: Pre-Seed Round</div>
+        <div class="progress-wrap">
+          <div class="progress-fill" id="milestone-bar" style="background:var(--purple);width:0%"></div>
+        </div>
+        <div class="progress-label">
+          <span id="milestone-left">0</span>
+          <span id="milestone-right">500 users</span>
+        </div>
+      </div>
+
+      <!-- Core stats -->
+      <div class="stats-block">
+        <div class="stats-block-title">Users</div>
+        <div class="stat-row"><span class="stat-key">Total Users</span><span class="stat-val" id="s-total-users">0</span></div>
+        <div class="stat-row"><span class="stat-key">Paying</span><span class="stat-val green" id="s-paying">0</span></div>
+        <div class="stat-row"><span class="stat-key">Conversion</span><span class="stat-val" id="s-conv">2.0%</span></div>
+        <div class="stat-row"><span class="stat-key">Churn Rate</span><span class="stat-val red" id="s-churn">3.0%/mo</span></div>
+        <div class="stat-row"><span class="stat-key">Auto Users/s</span><span class="stat-val cyan" id="s-auto" style="color:var(--cyan)">0</span></div>
+      </div>
+
+      <div class="stats-block">
+        <div class="stats-block-title">Revenue</div>
+        <div class="stat-row"><span class="stat-key">MRR</span><span class="stat-val green" id="s-mrr">$0</span></div>
+        <div class="stat-row"><span class="stat-key">ARR</span><span class="stat-val green" id="s-arr">$0</span></div>
+        <div class="stat-row"><span class="stat-key">ARPU</span><span class="stat-val" id="s-arpu">$0</span></div>
+        <div class="stat-row"><span class="stat-key">Burn Rate</span><span class="stat-val red" id="s-burn">$0/mo</span></div>
+        <div class="stat-row">
+          <span class="stat-key">Runway</span>
+          <span class="stat-val yellow" id="s-runway">--</span>
+        </div>
+        <div id="runway-bar-wrap">
+          <div id="runway-bar-bg">
+            <div id="runway-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Effects -->
+      <div class="stats-block" id="effects-block" style="display:none;">
+        <div class="stats-block-title">Active Effects</div>
+        <div id="effects-list"></div>
+      </div>
+
+      <!-- Team -->
+      <div class="stats-block" id="team-block" style="display:none;">
+        <div class="stats-block-title">Team</div>
+        <div class="employee-list" id="employee-list"></div>
+      </div>
+
+    </div>
+
+    <!-- CENTER: UPGRADES -->
+    <div class="panel" id="upgrades-panel">
+      <div class="panel-title">Upgrades & Hiring</div>
+      <div id="upgrades-list"></div>
+    </div>
+
+    <!-- RIGHT: STATS / LOG -->
+    <div class="panel" id="right-panel">
+      <div class="panel-title">Dashboard</div>
+
+      <div class="stats-block">
+        <div class="stats-block-title">Funding</div>
+        <div class="stat-row"><span class="stat-key">Round</span><span class="stat-val" id="s-round" style="color:var(--purple)">Pre-Funding</span></div>
+        <div class="stat-row"><span class="stat-key">Raised</span><span class="stat-val green" id="s-raised">$0</span></div>
+        <div class="stat-row"><span class="stat-key">Investor Equity</span><span class="stat-val" id="s-equity">0%</span></div>
+        <div class="stat-row"><span class="stat-key">Your Equity</span><span class="stat-val green" id="s-your-equity">100%</span></div>
+      </div>
+
+      <div class="stats-block">
+        <div class="stats-block-title">Prestige Bonuses</div>
+        <div class="stat-row"><span class="stat-key">IPOs Completed</span><span class="stat-val yellow" id="s-ipos">0</span></div>
+        <div class="stat-row"><span class="stat-key">Click Multiplier</span><span class="stat-val" id="s-click-mult">1x</span></div>
+        <div class="stat-row"><span class="stat-key">Revenue Multiplier</span><span class="stat-val" id="s-rev-mult">1x</span></div>
+        <div class="stat-row"><span class="stat-key">Conv. Bonus</span><span class="stat-val" id="s-conv-bonus">+0%</span></div>
+      </div>
+
+      <!-- Plan distribution -->
+      <div class="stats-block">
+        <div class="stats-block-title">Plan Distribution</div>
+        <div class="stat-row"><span class="stat-key">Free</span><span class="stat-val" id="p-free">0</span></div>
+        <div class="stat-row"><span class="stat-key">Basic ($29)</span><span class="stat-val" id="p-basic">0</span></div>
+        <div class="stat-row"><span class="stat-key">Pro ($99)</span><span class="stat-val" id="p-pro">0</span></div>
+        <div class="stat-row"><span class="stat-key">Enterprise ($500)</span><span class="stat-val" id="p-ent">0</span></div>
+      </div>
+
+      <!-- Event log -->
+      <div class="panel-title" style="margin-top:6px;">Event Log</div>
+      <div id="event-log" style="display:flex;flex-direction:column;gap:4px;flex:1;overflow-y:auto;"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MOBILE TAB BAR -->
+<div id="mobile-tabs">
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('click-panel', this)">
+      <span class="tab-icon">📣</span>
+      <span>Click</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('upgrades-panel', this)">
+      <span class="tab-icon">🛒</span>
+      <span>Upgrades</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('right-panel', this)">
+      <span class="tab-icon">📊</span>
+      <span>Dashboard</span>
+    </button>
+  </div>
+</div>
+
+<!-- EVENT MODAL -->
+<div id="event-overlay" class="hidden">
+  <div class="event-modal">
+    <div class="event-type" id="ev-type">Random Event</div>
+    <div class="event-title" id="ev-title"></div>
+    <div class="event-body" id="ev-body"></div>
+    <div class="event-choices" id="ev-choices"></div>
+  </div>
+</div>
+
+<!-- FUNDING MODAL -->
+<div id="funding-overlay" class="hidden">
+  <div class="funding-modal">
+    <div class="funding-round-label" id="fr-label">Funding Round</div>
+    <div class="funding-title" id="fr-title">Investors are interested!</div>
+    <div class="funding-desc" id="fr-desc"></div>
+    <div class="term-sheets" id="fr-terms"></div>
+  </div>
+</div>
+
+<!-- IPO MODAL -->
+<div id="ipo-overlay" class="hidden">
+  <div class="ipo-modal">
+    <div class="ipo-emoji">🚀</div>
+    <div class="ipo-title">IPO Achieved!</div>
+    <div class="ipo-body" id="ipo-body">Your company has gone public! The market values your company and you walk away with a permanent multiplier bonus.</div>
+    <div class="ipo-bonus" id="ipo-bonus">+50% Revenue Multiplier for all future runs</div>
+    <button class="btn btn-gold w-full" onclick="doPrestige()">Ring the Bell & Start New Company</button>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div id="gameover-overlay" class="hidden">
+  <div class="gameover-modal">
+    <div class="gameover-emoji">💀</div>
+    <div class="gameover-title">Startup Failed</div>
+    <div class="gameover-body" id="gameover-body">You ran out of cash. The team has moved on and the servers are dark.</div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="btn btn-primary" onclick="restartGame()">Try Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- HALL OF FAME -->
+<div id="hof-overlay" class="hidden">
+  <div class="hof-modal">
+    <div class="hof-emoji">🏆</div>
+    <div class="hof-title">Hall of Fame</div>
+    <div class="hof-body">You've built three world-class companies from nothing. You are a legendary entrepreneur.</div>
+    <div class="hof-stats" id="hof-stats"></div>
+    <button class="btn btn-gold w-full" onclick="restartGame(true)">Start Fresh (Keep Legend Status)</button>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="notif-container"></div>
+
+<script>
+// ============================================================
+//  GAME STATE
+// ============================================================
+const COMPANY_NAMES = [
+  'Synapse','Verdant','Nexora','Helion','Stratum','Aerion',
+  'Cognify','Vortex','Lumina','Cascade','Pivotal','Zenith',
+  'Apexio','Fluxware','Orbis','Tessera','Veloura','Cloudrift'
+];
+
+const STAGE_EMOJIS = ['🌱','🌿','🏗️','🏢','🚀','🦄'];
+const STAGE_LABELS = ['Idea Stage','Early Startup','Scaling','Growth Stage','Hypergrowth','Unicorn'];
+
+let prestigeData = {
+  ipos: 0,
+  clickMult: 1,
+  revMult: 1,
+  convBonus: 0
+};
+
+let G = {}; // game state
+
+function initGame() {
+  G = {
+    // Core resources
+    cash: 5000,       // starting cash
+    totalUsers: 0,
+    payingUsers: 0,
+    // Rates
+    convRate: 0.02,   // 2% base conversion
+    churnRate: 0.03,  // 3%/mo base churn
+    clickPower: 1,    // users per click
+    autoRate: 0,      // users per second from auto-clickers
+    // Revenue
+    arpu: 0,          // avg revenue per paying user/mo
+    mrr: 0,
+    burnRate: 0,      // monthly expenses
+    totalRaised: 0,
+    investorEquity: 0,
+    // Plans unlocked
+    plansUnlocked: { free: true, basic: false, pro: false, enterprise: false },
+    // Plan distribution (of paying users)
+    planDist: { basic: 1, pro: 0, enterprise: 0 },
+    // Team
+    hiredTeam: {},    // id -> true
+    // Upgrades
+    purchased: {},    // id -> true
+    // Events
+    activeEffects: [],
+    // Funding rounds
+    fundingRound: -1,  // index into FUNDING_ROUNDS (-1 = pre-seed pending)
+    fundingLocked: false,
+    // Random events
+    lastEventTime: Date.now() + 30000, // first event after 30s
+    nextEventInterval: 80000,
+    // Ticks
+    tick: 0,
+    lastTick: Date.now(),
+    // Company
+    companyName: pickRandom(COMPANY_NAMES),
+    stage: 0,
+    // Game state
+    gameOver: false,
+    ipoTriggered: false,
+    ipoAvailable: false
+  };
+}
+
+// ============================================================
+//  UPGRADE / HIRE DEFINITIONS
+// ============================================================
+
+const UPGRADES = [
+  // ---- AUTO-CLICKERS ----
+  {
+    id: 'referral',
+    name: 'Referral Program',
+    type: 'auto',
+    tag: 'tag-auto',
+    tagLabel: 'Auto',
+    desc: 'Happy users invite friends. +0.3 users/sec',
+    cost: 500,
+    unlockCash: 0,
+    onBuy: () => { G.autoRate += 0.3; },
+    repeatable: false
+  },
+  {
+    id: 'seo',
+    name: 'SEO Campaign',
+    type: 'auto',
+    tag: 'tag-auto',
+    tagLabel: 'Auto',
+    desc: 'Organic search traffic. +1 user/sec',
+    cost: 2000,
+    unlockUsers: 200,
+    onBuy: () => { G.autoRate += 1; },
+    repeatable: false
+  },
+  {
+    id: 'paid_ads',
+    name: 'Paid Ads (Google/Meta)',
+    type: 'auto',
+    tag: 'tag-auto',
+    tagLabel: 'Auto',
+    desc: 'Buy growth. +3 users/sec, +$500/mo burn',
+    cost: 8000,
+    unlockUsers: 1000,
+    onBuy: () => { G.autoRate += 3; G.burnRate += 500; },
+    repeatable: false
+  },
+  {
+    id: 'viral_loop',
+    name: 'Viral Loop',
+    type: 'auto',
+    tag: 'tag-auto',
+    tagLabel: 'Auto',
+    desc: 'Product-led virality engine. +8 users/sec',
+    cost: 30000,
+    unlockUsers: 5000,
+    onBuy: () => { G.autoRate += 8; },
+    repeatable: false
+  },
+  {
+    id: 'influencer',
+    name: 'Influencer Partnerships',
+    type: 'auto',
+    tag: 'tag-auto',
+    tagLabel: 'Auto',
+    desc: 'Sponsored content at scale. +20 users/sec, +$2k/mo burn',
+    cost: 80000,
+    unlockUsers: 15000,
+    onBuy: () => { G.autoRate += 20; G.burnRate += 2000; },
+    repeatable: false
+  },
+  {
+    id: 'content_machine',
+    name: 'Content Machine',
+    type: 'auto',
+    tag: 'tag-auto',
+    tagLabel: 'Auto',
+    desc: 'Blog, podcast, YouTube -- +50 users/sec',
+    cost: 200000,
+    unlockUsers: 50000,
+    onBuy: () => { G.autoRate += 50; },
+    repeatable: false
+  },
+
+  // ---- CLICK UPGRADES ----
+  {
+    id: 'better_pitch',
+    name: 'Better Pitch Deck',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Sharper messaging, more signups per mention. +4 click power',
+    cost: 300,
+    unlockCash: 0,
+    onBuy: () => { G.clickPower += 4; },
+    repeatable: false
+  },
+  {
+    id: 'demo_day',
+    name: 'Demo Day Appearance',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Pitch in front of 500 people. +15 click power',
+    cost: 1500,
+    unlockUsers: 100,
+    onBuy: () => { G.clickPower += 15; },
+    repeatable: false
+  },
+  {
+    id: 'landing_page',
+    name: 'Landing Page A/B Test',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Optimize conversion on the signup page. +1% conversion rate',
+    cost: 2500,
+    unlockUsers: 500,
+    onBuy: () => { G.convRate += 0.01; },
+    repeatable: false
+  },
+  {
+    id: 'onboarding',
+    name: 'Onboarding Flow Redesign',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Users "get it" faster. -0.5% churn/mo, +1% conversion',
+    cost: 5000,
+    unlockUsers: 1000,
+    onBuy: () => { G.churnRate = Math.max(0.005, G.churnRate - 0.005); G.convRate += 0.01; },
+    repeatable: false
+  },
+  {
+    id: 'product_hunt',
+    name: 'Product Hunt Launch',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Viral spike! +50 click power for this run',
+    cost: 1000,
+    unlockUsers: 300,
+    onBuy: () => { G.clickPower += 50; },
+    repeatable: false
+  },
+  {
+    id: 'churn_analysis',
+    name: 'Churn Analysis Tool',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Understand why users leave. -1% churn/mo',
+    cost: 12000,
+    unlockPaying: 100,
+    onBuy: () => { G.churnRate = Math.max(0.003, G.churnRate - 0.01); },
+    repeatable: false
+  },
+  {
+    id: 'annual_plans',
+    name: 'Annual Plan Discount',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Lock users in yearly. -1.5% churn/mo',
+    cost: 20000,
+    unlockPaying: 200,
+    onBuy: () => { G.churnRate = Math.max(0.003, G.churnRate - 0.015); },
+    repeatable: false
+  },
+  {
+    id: 'in_app_nps',
+    name: 'In-App NPS Surveys',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Catch unhappy users early. -1% churn/mo, +0.5% conversion',
+    cost: 8000,
+    unlockPaying: 150,
+    onBuy: () => { G.churnRate = Math.max(0.003, G.churnRate - 0.01); G.convRate += 0.005; },
+    repeatable: false
+  },
+  {
+    id: 'click_boost_1',
+    name: 'Growth Playbook Vol.1',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Systematic user acquisition framework. +100 click power',
+    cost: 15000,
+    unlockUsers: 3000,
+    onBuy: () => { G.clickPower += 100; },
+    repeatable: false
+  },
+  {
+    id: 'click_boost_2',
+    name: 'Growth Playbook Vol.2',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Advanced acquisition at scale. +500 click power',
+    cost: 100000,
+    unlockUsers: 20000,
+    onBuy: () => { G.clickPower += 500; },
+    repeatable: false
+  },
+
+  // ---- PLAN TIERS ----
+  {
+    id: 'plan_basic',
+    name: 'Launch Basic Plan ($29/mo)',
+    type: 'plan',
+    tag: 'tag-plan',
+    tagLabel: 'Plan',
+    desc: 'Enable your first paid tier. Users on Basic generate $29 ARPU.',
+    cost: 1000,
+    unlockUsers: 100,
+    onBuy: () => { G.plansUnlocked.basic = true; recalcARPU(); },
+    repeatable: false
+  },
+  {
+    id: 'plan_pro',
+    name: 'Launch Pro Plan ($99/mo)',
+    type: 'plan',
+    tag: 'tag-plan',
+    tagLabel: 'Plan',
+    desc: 'Power users pay more. 30% of paying users upgrade to Pro.',
+    cost: 8000,
+    unlockPaying: 50,
+    onBuy: () => {
+      G.plansUnlocked.pro = true;
+      G.planDist.basic = 0.7; G.planDist.pro = 0.3;
+      recalcARPU();
+    },
+    repeatable: false
+  },
+  {
+    id: 'plan_enterprise',
+    name: 'Launch Enterprise ($500/mo)',
+    type: 'plan',
+    tag: 'tag-plan',
+    tagLabel: 'Plan',
+    desc: 'Land big clients. 10% on Enterprise, 30% Pro, 60% Basic.',
+    cost: 50000,
+    unlockPaying: 500,
+    onBuy: () => {
+      G.plansUnlocked.enterprise = true;
+      G.planDist.basic = 0.6; G.planDist.pro = 0.3; G.planDist.enterprise = 0.1;
+      recalcARPU();
+    },
+    repeatable: false
+  },
+
+  // ---- TEAM HIRES ----
+  {
+    id: 'hire_priya',
+    name: 'Priya — Senior Engineer',
+    type: 'team',
+    tag: 'tag-team',
+    tagLabel: 'Hire',
+    desc: 'Speeds up feature development. +150% auto-rate, reduces churn 0.5%/mo.',
+    monthlyCost: 12000,
+    cost: 12000,  // signing bonus / first month
+    unlockCash: 15000,
+    onBuy: () => {
+      G.autoRate *= 2.5;
+      G.churnRate = Math.max(0.003, G.churnRate - 0.005);
+      G.burnRate += 12000;
+      G.hiredTeam.priya = true;
+    },
+    repeatable: false,
+    isHire: true
+  },
+  {
+    id: 'hire_marcus',
+    name: 'Marcus — Growth Hacker',
+    type: 'team',
+    tag: 'tag-team',
+    tagLabel: 'Hire',
+    desc: '+30% conversion rate, +2 click power per second effect.',
+    monthlyCost: 8000,
+    cost: 8000,
+    unlockCash: 10000,
+    onBuy: () => {
+      G.convRate *= 1.3;
+      G.clickPower += 30;
+      G.burnRate += 8000;
+      G.hiredTeam.marcus = true;
+    },
+    repeatable: false,
+    isHire: true
+  },
+  {
+    id: 'hire_sofia',
+    name: 'Sofia — Head of Customer Success',
+    type: 'team',
+    tag: 'tag-team',
+    tagLabel: 'Hire',
+    desc: 'Dramatically reduces churn. -2%/mo churn.',
+    monthlyCost: 9000,
+    cost: 9000,
+    unlockPaying: 100,
+    onBuy: () => {
+      G.churnRate = Math.max(0.003, G.churnRate - 0.02);
+      G.burnRate += 9000;
+      G.hiredTeam.sofia = true;
+    },
+    repeatable: false,
+    isHire: true
+  },
+  {
+    id: 'hire_james',
+    name: 'James — VP of Sales',
+    type: 'team',
+    tag: 'tag-team',
+    tagLabel: 'Hire',
+    desc: 'Drives Enterprise deals. +20% plan distribution to Enterprise.',
+    monthlyCost: 15000,
+    cost: 15000,
+    unlockPaying: 300,
+    onBuy: () => {
+      if (G.plansUnlocked.enterprise) {
+        G.planDist.enterprise = Math.min(0.4, G.planDist.enterprise + 0.20);
+        G.planDist.basic = Math.max(0.2, 1 - G.planDist.pro - G.planDist.enterprise);
+        recalcARPU();
+      }
+      G.burnRate += 15000;
+      G.hiredTeam.james = true;
+    },
+    repeatable: false,
+    isHire: true
+  },
+  {
+    id: 'hire_aisha',
+    name: 'Aisha — Data Scientist',
+    type: 'team',
+    tag: 'tag-team',
+    tagLabel: 'Hire',
+    desc: 'ML-driven user behavior insights. +2% conversion, -1% churn.',
+    monthlyCost: 14000,
+    cost: 14000,
+    unlockPaying: 200,
+    onBuy: () => {
+      G.convRate += 0.02;
+      G.churnRate = Math.max(0.003, G.churnRate - 0.01);
+      G.burnRate += 14000;
+      G.hiredTeam.aisha = true;
+    },
+    repeatable: false,
+    isHire: true
+  },
+  {
+    id: 'hire_diego',
+    name: 'Diego — DevOps Lead',
+    type: 'team',
+    tag: 'tag-team',
+    tagLabel: 'Hire',
+    desc: 'Infrastructure stability. Prevents outage events, +$800/mo infra savings.',
+    monthlyCost: 13000,
+    cost: 13000,
+    unlockCash: 50000,
+    onBuy: () => {
+      G.burnRate += 13000 - 800;
+      G.hiredTeam.diego = true;
+    },
+    repeatable: false,
+    isHire: true
+  },
+  {
+    id: 'hire_cto',
+    name: 'Zara — CTO',
+    type: 'team',
+    tag: 'tag-team',
+    tagLabel: 'Hire',
+    desc: 'World-class technical leadership. +200% auto-rate, -1.5% churn.',
+    monthlyCost: 25000,
+    cost: 25000,
+    unlockPaying: 1000,
+    onBuy: () => {
+      G.autoRate *= 3;
+      G.churnRate = Math.max(0.003, G.churnRate - 0.015);
+      G.burnRate += 25000;
+      G.hiredTeam.zara = true;
+    },
+    repeatable: false,
+    isHire: true
+  },
+  {
+    id: 'hire_cmo',
+    name: 'Lena — CMO',
+    type: 'team',
+    tag: 'tag-team',
+    tagLabel: 'Hire',
+    desc: 'Brand + performance marketing at scale. +100 auto users/sec.',
+    monthlyCost: 20000,
+    cost: 20000,
+    unlockPaying: 500,
+    onBuy: () => {
+      G.autoRate += 100;
+      G.burnRate += 20000;
+      G.hiredTeam.lena = true;
+    },
+    repeatable: false,
+    isHire: true
+  },
+
+  // ---- INFRASTRUCTURE ----
+  {
+    id: 'cloud_basic',
+    name: 'Cloud Infrastructure',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Handle scale. Required for >10k users. +$1k/mo burn',
+    cost: 3000,
+    unlockUsers: 2000,
+    onBuy: () => { G.burnRate += 1000; },
+    repeatable: false
+  },
+  {
+    id: 'cloud_scale',
+    name: 'Enterprise Cloud (AWS/GCP)',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: '99.99% uptime SLA. -2% churn, +$5k/mo burn',
+    cost: 25000,
+    unlockUsers: 20000,
+    onBuy: () => { G.churnRate = Math.max(0.003, G.churnRate - 0.02); G.burnRate += 5000; },
+    repeatable: false
+  },
+  {
+    id: 'security_soc2',
+    name: 'SOC2 Certification',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Enterprise customers demand it. +15% Enterprise plan distribution.',
+    cost: 40000,
+    unlockPaying: 400,
+    onBuy: () => {
+      if (G.plansUnlocked.enterprise) {
+        G.planDist.enterprise = Math.min(0.5, G.planDist.enterprise + 0.15);
+        G.planDist.basic = Math.max(0.15, 1 - G.planDist.pro - G.planDist.enterprise);
+        recalcARPU();
+      }
+      G.burnRate += 500;
+    },
+    repeatable: false
+  },
+];
+
+const TEAM_INFO = {
+  priya: { name: 'Priya', role: 'Senior Engineer', cost: 12000 },
+  marcus: { name: 'Marcus', role: 'Growth Hacker', cost: 8000 },
+  sofia: { name: 'Sofia', role: 'Head of Customer Success', cost: 9000 },
+  james: { name: 'James', role: 'VP of Sales', cost: 15000 },
+  aisha: { name: 'Aisha', role: 'Data Scientist', cost: 14000 },
+  diego: { name: 'Diego', role: 'DevOps Lead', cost: 12200 },
+  zara: { name: 'Zara', role: 'CTO', cost: 25000 },
+  lena: { name: 'Lena', role: 'CMO', cost: 20000 },
+};
+
+// ============================================================
+//  FUNDING ROUNDS
+// ============================================================
+const FUNDING_ROUNDS = [
+  {
+    name: 'Pre-Seed',
+    label: 'Pre-Seed Round',
+    triggerUsers: 500,
+    triggerMRR: 0,
+    desc: 'An angel investor sees potential in your product. Two term sheets on the table.',
+    terms: [
+      { amount: 100000, equity: 0.08, label: '$100k @ 8%', desc: 'Bootstrap-friendly terms from a founder-first angel. Lower dilution.' },
+      { amount: 200000, equity: 0.15, label: '$200k @ 15%', desc: 'More runway, more resources. Higher dilution but faster growth.' }
+    ]
+  },
+  {
+    name: 'Seed',
+    label: 'Seed Round',
+    triggerUsers: 2000,
+    triggerMRR: 5000,
+    desc: 'You\'ve proven the concept. A seed-stage VC fund wants in with real capital.',
+    terms: [
+      { amount: 500000, equity: 0.12, label: '$500k @ 12%', desc: 'Tier-2 VC, clean terms, fast close. Good runway.' },
+      { amount: 1000000, equity: 0.20, label: '$1M @ 20%', desc: 'Top-tier VC with network access. Significant dilution.' }
+    ]
+  },
+  {
+    name: 'Series A',
+    label: 'Series A',
+    triggerUsers: 10000,
+    triggerMRR: 50000,
+    desc: 'You have strong product-market fit. Institutional VCs are competing for your deal.',
+    terms: [
+      { amount: 3000000, equity: 0.18, label: '$3M @ 18%', desc: 'Clean term sheet, board seat optional.' },
+      { amount: 5000000, equity: 0.25, label: '$5M @ 25%', desc: 'Massive war chest. Two board seats for investors.' }
+    ]
+  },
+  {
+    name: 'Series B',
+    label: 'Series B',
+    triggerUsers: 50000,
+    triggerMRR: 500000,
+    desc: 'You\'re scaling. Growth equity funds see a category winner.',
+    terms: [
+      { amount: 15000000, equity: 0.15, label: '$15M @ 15%', desc: 'Growth fund with operational expertise.' },
+      { amount: 25000000, equity: 0.22, label: '$25M @ 22%', desc: 'Largest round you\'ve seen. International expansion money.' }
+    ]
+  },
+  {
+    name: 'Series C',
+    label: 'Series C',
+    triggerUsers: 200000,
+    triggerMRR: 2000000,
+    desc: 'You\'re a market leader. Late-stage investors and sovereign wealth funds are calling.',
+    terms: [
+      { amount: 50000000, equity: 0.12, label: '$50M @ 12%', desc: 'Pre-IPO bridge with favorable terms.' },
+      { amount: 100000000, equity: 0.20, label: '$100M @ 20%', desc: 'Massive dilution but a $500M valuation.' }
+    ]
+  },
+  {
+    name: 'IPO',
+    label: 'Initial Public Offering',
+    triggerUsers: 500000,
+    triggerMRR: 5000000,
+    desc: 'Your company is ready to go public. Wall Street is watching.',
+    terms: [], // special case
+    isIPO: true
+  }
+];
+
+// ============================================================
+//  RANDOM EVENTS
+// ============================================================
+const RANDOM_EVENTS = [
+  {
+    id: 'techcrunch',
+    title: 'TechCrunch Wants to Feature You',
+    type: 'Opportunity',
+    body: 'A journalist from TechCrunch reached out. A feature could drive massive signups -- but the PR firm wants $5k to prepare the story.',
+    choices: [
+      {
+        title: 'Hire PR Firm ($5k)',
+        desc: '+500 users, +2% conversion for 60 seconds',
+        onChoose: () => {
+          if (G.cash < 5000) { notify('Not enough cash!', 'danger'); return; }
+          G.cash -= 5000;
+          G.totalUsers += 500;
+          addEffect('techcrunch_pr', 'TechCrunch Boost', 60, () => {
+            G.convRate *= 1.02;
+          }, () => {
+            G.convRate /= 1.02;
+          });
+          logEvent('TechCrunch feature with PR firm: +500 users!');
+        }
+      },
+      {
+        title: 'Do Free Interview',
+        desc: '+150 users, +0.5% conversion for 30s',
+        onChoose: () => {
+          G.totalUsers += 150;
+          addEffect('techcrunch_free', 'TechCrunch Mention', 30, () => {
+            G.convRate *= 1.005;
+          }, () => {
+            G.convRate /= 1.005;
+          });
+          logEvent('TechCrunch mention: +150 users!');
+        }
+      }
+    ]
+  },
+  {
+    id: 'competitor',
+    title: 'Competitor Just Launched',
+    type: 'Threat',
+    body: 'A well-funded competitor just dropped their product on Product Hunt and they\'re undercutting your pricing. Churn is spiking.',
+    choices: [
+      {
+        title: 'Run Counter-Campaign ($3k)',
+        desc: 'Neutralize the churn spike. Pay $3k for fast marketing response.',
+        onChoose: () => {
+          if (G.cash < 3000) { notify('Not enough cash!', 'danger'); return; }
+          G.cash -= 3000;
+          notify('Counter-campaign launched. Churn spike neutralized.', 'success');
+          logEvent('Paid $3k to neutralize competitor churn spike.');
+        }
+      },
+      {
+        title: 'Ride It Out',
+        desc: '+10% churn for 45 seconds. Risky.',
+        onChoose: () => {
+          addEffect('competitor', 'Competitor Pressure', 45, () => {
+            G.churnRate += 0.1;
+          }, () => {
+            G.churnRate = Math.max(0.003, G.churnRate - 0.1);
+          });
+          logEvent('Competitor launched -- churn spiking for 45s.');
+        }
+      }
+    ]
+  },
+  {
+    id: 'engineer_quit',
+    title: 'Key Engineer Quit',
+    type: 'Setback',
+    body: 'Your best engineer accepted an offer at Google. Their work was critical to your product velocity.',
+    choices: [
+      {
+        title: 'Emergency Hire ($8k)',
+        desc: 'Rush hire a contractor. Minimize disruption.',
+        onChoose: () => {
+          if (G.cash < 8000) { notify('Not enough cash!', 'danger'); return; }
+          G.cash -= 8000;
+          notify('Contractor onboarded. Back to normal.', 'success');
+          logEvent('Engineer quit. Hired contractor for $8k.');
+        }
+      },
+      {
+        title: 'Redistribute Duties',
+        desc: '-30% auto-rate for 60 seconds while team adjusts.',
+        onChoose: () => {
+          addEffect('eng_quit', 'Team Stretched', 60, () => {
+            G.autoRate *= 0.7;
+          }, () => {
+            G.autoRate /= 0.7;
+          });
+          logEvent('Engineer quit. Team is stretched -- auto-rate -30% for 60s.');
+        }
+      }
+    ]
+  },
+  {
+    id: 'viral_tweet',
+    title: 'Your Tweet Went Viral',
+    type: 'Opportunity',
+    body: 'A tweet about your product hit 50k retweets. The signup page is getting hammered. Do you boost server capacity to handle it?',
+    choices: [
+      {
+        title: 'Boost Servers ($2k)',
+        desc: '+800 users, all conversions captured.',
+        onChoose: () => {
+          if (G.cash < 2000) { notify('Not enough cash -- servers crashed!', 'danger'); G.totalUsers += 200; return; }
+          G.cash -= 2000;
+          G.totalUsers += 800;
+          notify('Servers held! Viral wave captured.', 'success');
+          logEvent('Viral tweet: +800 users (paid $2k for servers).');
+        }
+      },
+      {
+        title: 'Let It Ride (Free)',
+        desc: '+400 users but 50% signup failure rate.',
+        onChoose: () => {
+          G.totalUsers += 400;
+          notify('Servers struggled. Captured half the traffic.', 'warn');
+          logEvent('Viral tweet: +400 users (servers strained).');
+        }
+      }
+    ]
+  },
+  {
+    id: 'security_breach',
+    title: 'Security Breach Detected',
+    type: 'Crisis',
+    body: 'An automated scanner found a SQL injection vulnerability. It hasn\'t been exploited -- yet. Patch it now or risk catastrophic churn.',
+    choices: [
+      {
+        title: 'Emergency Patch ($5k, 2hr downtime)',
+        desc: 'Safe. -0.5% conversion for 30s from downtime.',
+        onChoose: () => {
+          if (G.cash < 5000) { notify('Can\'t afford patch! Breach risk high.', 'danger'); return; }
+          G.cash -= 5000;
+          addEffect('downtime', 'Maintenance Window', 30, () => { G.convRate *= 0.995; }, () => { G.convRate /= 0.995; });
+          notify('Breach patched. System secure.', 'success');
+          logEvent('Security breach patched for $5k.');
+        }
+      },
+      {
+        title: 'Ignore For Now',
+        desc: '30% chance of major breach: -20% paying users.',
+        onChoose: () => {
+          if (Math.random() < 0.3) {
+            const lost = Math.floor(G.payingUsers * 0.2);
+            G.payingUsers = Math.max(0, G.payingUsers - lost);
+            G.totalUsers = Math.max(G.payingUsers, G.totalUsers - lost);
+            notify(`BREACH OCCURRED! Lost ${lost} paying users!`, 'danger');
+            logEvent(`Security breach: lost ${lost} paying users.`);
+          } else {
+            notify('Got lucky. No breach this time.', 'warn');
+            logEvent('Ignored security vulnerability -- dodged a bullet.');
+          }
+        }
+      }
+    ]
+  },
+  {
+    id: 'acquihire',
+    title: 'Big Tech Acqui-hire Offer',
+    type: 'Opportunity',
+    body: 'A major tech company wants to acqui-hire your team for $2M. You\'d have to shut down the product.',
+    choices: [
+      {
+        title: 'Decline Politely',
+        desc: 'Stay the course. +morale boost: +10% auto-rate for 30s.',
+        onChoose: () => {
+          addEffect('morale', 'Team Morale Boost', 30, () => { G.autoRate *= 1.1; }, () => { G.autoRate /= 1.1; });
+          notify('Team energized by your commitment!', 'success');
+          logEvent('Declined acqui-hire offer. Team is motivated.');
+        }
+      },
+      {
+        title: 'Negotiate (ask for $3M)',
+        desc: '50% they accept (+$3M cash), 50% they walk.',
+        onChoose: () => {
+          if (Math.random() < 0.5) {
+            G.cash += 3000000;
+            notify('They accepted! $3M added to cash!', 'success');
+            logEvent('Acqui-hire negotiation: SUCCESS. +$3M!');
+          } else {
+            notify('They walked. No deal.', 'warn');
+            logEvent('Acqui-hire negotiation: failed. No deal.');
+          }
+        }
+      }
+    ]
+  },
+  {
+    id: 'server_outage',
+    title: 'Server Outage',
+    type: 'Crisis',
+    body: 'Your cloud provider is having a major outage. Users can\'t access the product. Every minute costs you.',
+    choices: [
+      {
+        title: 'Failover to Backup ($1.5k)',
+        desc: 'Back online in 10s. Minimal churn impact.',
+        onChoose: () => {
+          if (G.cash < 1500) { notify('Can\'t afford failover!', 'danger'); }
+          else { G.cash -= 1500; notify('Failover successful. Back online.', 'success'); logEvent('Outage: paid $1.5k for failover.'); }
+        }
+      },
+      {
+        title: 'Wait For Provider',
+        desc: '+5% churn for 60 seconds.',
+        onChoose: () => {
+          addEffect('outage', 'Outage Churn', 60, () => { G.churnRate += 0.05; }, () => { G.churnRate = Math.max(0.003, G.churnRate - 0.05); });
+          logEvent('Server outage: churn spiking for 60s.');
+        }
+      }
+    ]
+  },
+  {
+    id: 'partnership',
+    title: 'Strategic Partnership Offer',
+    type: 'Opportunity',
+    body: 'A larger platform wants to bundle your product with theirs. Instant distribution -- but you split revenue 70/30.',
+    choices: [
+      {
+        title: 'Accept Partnership',
+        desc: '+1000 users immediately, -30% ARPU for 60s.',
+        onChoose: () => {
+          G.totalUsers += 1000;
+          addEffect('partnership', 'Revenue Share', 60, () => { G.arpu *= 0.7; }, () => { recalcARPU(); });
+          notify('Partnership signed! +1000 users.', 'success');
+          logEvent('Partnership: +1000 users, -30% ARPU for 60s.');
+        }
+      },
+      {
+        title: 'Decline',
+        desc: 'Stay independent. No immediate gains.',
+        onChoose: () => {
+          notify('Partnership declined. Independence maintained.', 'info');
+          logEvent('Declined partnership offer.');
+        }
+      }
+    ]
+  }
+];
+
+// ============================================================
+//  HELPER FUNCTIONS
+// ============================================================
+function fmt(n) {
+  if (n === undefined || n === null || isNaN(n)) return '$0';
+  if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'k';
+  return '$' + Math.floor(n).toLocaleString();
+}
+
+function fmtNum(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'k';
+  return Math.floor(n).toLocaleString();
+}
+
+function fmtRate(r) {
+  return (r * 100).toFixed(1) + '%';
+}
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function recalcARPU() {
+  if (!G.plansUnlocked.basic) { G.arpu = 0; return; }
+  let arpu = 0;
+  if (G.plansUnlocked.enterprise) {
+    arpu = G.planDist.basic * 29 + G.planDist.pro * 99 + G.planDist.enterprise * 500;
+  } else if (G.plansUnlocked.pro) {
+    arpu = G.planDist.basic * 29 + G.planDist.pro * 99;
+  } else {
+    arpu = 29;
+  }
+  G.arpu = arpu;
+}
+
+function addEffect(id, label, duration, onStart, onEnd) {
+  // Remove existing effect with same id
+  const existing = G.activeEffects.findIndex(e => e.id === id);
+  if (existing >= 0) {
+    G.activeEffects[existing].onEnd();
+    G.activeEffects.splice(existing, 1);
+  }
+  if (onStart) onStart();
+  G.activeEffects.push({ id, label, duration, elapsed: 0, onEnd });
+}
+
+function notify(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = 'notif ' + type;
+  el.textContent = msg;
+  document.getElementById('notif-container').appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+function logEvent(msg) {
+  const log = document.getElementById('event-log');
+  const el = document.createElement('div');
+  el.style.cssText = 'background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:11px;color:var(--text2);';
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  el.innerHTML = `<span style="color:var(--text3);font-family:var(--mono);font-size:10px;">${time}</span> ${msg}`;
+  log.insertBefore(el, log.firstChild);
+  // Keep last 20
+  while (log.children.length > 20) log.removeChild(log.lastChild);
+}
+
+// ============================================================
+//  CLICK HANDLER
+// ============================================================
+function handleClick(e) {
+  const power = Math.ceil(G.clickPower * prestigeData.clickMult);
+  G.totalUsers += power;
+
+  // Float animation
+  const float = document.createElement('div');
+  float.className = 'click-float';
+  float.textContent = '+' + fmtNum(power) + ' user' + (power !== 1 ? 's' : '');
+  float.style.left = (e.clientX - 30) + 'px';
+  float.style.top = (e.clientY - 10) + 'px';
+  document.body.appendChild(float);
+  setTimeout(() => float.remove(), 950);
+}
+
+// ============================================================
+//  GAME TICK
+// ============================================================
+const TICK_MS = 100; // 10 ticks/second
+
+function gameTick() {
+  if (G.gameOver || G.ipoTriggered) return;
+
+  const now = Date.now();
+  const dt = Math.min((now - G.lastTick) / 1000, 0.5); // seconds, capped
+  G.lastTick = now;
+  G.tick++;
+
+  // -- Auto users --
+  if (G.autoRate > 0) {
+    G.totalUsers += G.autoRate * dt;
+  }
+
+  // -- Paying user conversion --
+  const targetPaying = Math.floor(G.totalUsers * G.convRate);
+  // Smooth approach to target
+  G.payingUsers += (targetPaying - G.payingUsers) * 0.05 * dt * 10;
+  G.payingUsers = Math.max(0, Math.min(G.payingUsers, G.totalUsers));
+
+  // -- Churn (applied to paying users) --
+  const monthlyChurn = G.churnRate;
+  const churnPerSec = monthlyChurn / (30 * 24 * 3600);
+  const churned = G.payingUsers * churnPerSec * dt;
+  G.payingUsers = Math.max(0, G.payingUsers - churned);
+  // Total users churn too (slightly less)
+  G.totalUsers = Math.max(G.payingUsers, G.totalUsers - churned * 1.5);
+
+  // -- MRR calc --
+  recalcARPU();
+  G.mrr = G.payingUsers * G.arpu * prestigeData.revMult;
+
+  // -- Cash flow (tick-based, monthly -> per second) --
+  const netMonthly = G.mrr - G.burnRate;
+  const netPerSec = netMonthly / (30 * 24 * 3600);
+  G.cash += netPerSec * dt;
+
+  // -- Active effects --
+  G.activeEffects = G.activeEffects.filter(ef => {
+    ef.elapsed += dt;
+    if (ef.elapsed >= ef.duration) {
+      ef.onEnd();
+      return false;
+    }
+    return true;
+  });
+
+  // -- Check game over --
+  if (G.cash <= 0) {
+    G.cash = 0;
+    triggerGameOver();
+    return;
+  }
+
+  // -- Check funding round triggers --
+  checkFundingTriggers();
+
+  // -- Check random events --
+  if (now > G.lastEventTime + G.nextEventInterval && !isModalOpen()) {
+    G.lastEventTime = now;
+    G.nextEventInterval = 60000 + Math.random() * 60000;
+    triggerRandomEvent();
+  }
+
+  // -- Stage update --
+  updateStage();
+
+  // -- Render --
+  if (G.tick % 2 === 0) render(); // render every 2 ticks
+}
+
+function isModalOpen() {
+  return !document.getElementById('event-overlay').classList.contains('hidden') ||
+    !document.getElementById('funding-overlay').classList.contains('hidden') ||
+    !document.getElementById('ipo-overlay').classList.contains('hidden');
+}
+
+// ============================================================
+//  STAGE / COMPANY GROWTH
+// ============================================================
+function updateStage() {
+  const u = G.totalUsers;
+  let stage = 0;
+  if (u >= 500000) stage = 5;
+  else if (u >= 50000) stage = 4;
+  else if (u >= 10000) stage = 3;
+  else if (u >= 1000) stage = 2;
+  else if (u >= 100) stage = 1;
+  G.stage = stage;
+}
+
+// ============================================================
+//  FUNDING ROUNDS
+// ============================================================
+function checkFundingTriggers() {
+  if (G.fundingLocked || isModalOpen()) return;
+  const nextRoundIdx = G.fundingRound + 1;
+  if (nextRoundIdx >= FUNDING_ROUNDS.length) return;
+
+  const round = FUNDING_ROUNDS[nextRoundIdx];
+  if (G.totalUsers >= round.triggerUsers && G.mrr >= round.triggerMRR) {
+    G.fundingLocked = true;
+    if (round.isIPO) {
+      triggerIPO();
+    } else {
+      showFundingModal(nextRoundIdx);
+    }
+  }
+}
+
+function showFundingModal(roundIdx) {
+  const round = FUNDING_ROUNDS[roundIdx];
+  document.getElementById('fr-label').textContent = round.label;
+  document.getElementById('fr-title').textContent = 'Investors are interested in ' + G.companyName + '!';
+  document.getElementById('fr-desc').textContent = round.desc;
+
+  const termsEl = document.getElementById('fr-terms');
+  termsEl.innerHTML = '';
+  round.terms.forEach(term => {
+    const el = document.createElement('div');
+    el.className = 'term-sheet';
+    el.innerHTML = `
+      <div class="term-sheet-amount">${fmt(term.amount)}</div>
+      <div class="term-sheet-equity">-${(term.equity * 100).toFixed(0)}% equity</div>
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;">${term.label}</div>
+      <div class="term-sheet-desc">${term.desc}</div>
+    `;
+    el.onclick = () => acceptFunding(roundIdx, term);
+    termsEl.appendChild(el);
+  });
+
+  document.getElementById('funding-overlay').classList.remove('hidden');
+}
+
+function acceptFunding(roundIdx, term) {
+  document.getElementById('funding-overlay').classList.add('hidden');
+  G.fundingRound = roundIdx;
+  G.cash += term.amount;
+  G.totalRaised += term.amount;
+  G.investorEquity = Math.min(0.95, G.investorEquity + term.equity);
+  G.fundingLocked = false;
+
+  const round = FUNDING_ROUNDS[roundIdx];
+  notify(`${round.name} complete! ${fmt(term.amount)} raised at ${(term.equity*100).toFixed(0)}% equity.`, 'success');
+  logEvent(`${round.name}: raised ${fmt(term.amount)}, gave ${(term.equity*100).toFixed(0)}% equity.`);
+  renderUpgrades();
+}
+
+// ============================================================
+//  IPO / PRESTIGE
+// ============================================================
+function triggerIPO() {
+  G.ipoTriggered = true;
+  const bonus = prestigeData.ipos === 0 ? 50 : prestigeData.ipos === 1 ? 75 : 100;
+  document.getElementById('ipo-body').textContent =
+    `${G.companyName} has gone public! The market erupts. You ring the bell on the NYSE. Time to build your next company.`;
+  document.getElementById('ipo-bonus').textContent =
+    `+${bonus}% Revenue Multiplier & +5% Conversion Bonus for next run`;
+  document.getElementById('ipo-overlay').classList.remove('hidden');
+  logEvent('IPO achieved! Going public!');
+}
+
+function doPrestige() {
+  document.getElementById('ipo-overlay').classList.add('hidden');
+  prestigeData.ipos += 1;
+  prestigeData.revMult += 0.5;
+  prestigeData.convBonus += 0.05;
+  prestigeData.clickMult += 0.25;
+
+  document.getElementById('ipo-count-display').textContent = prestigeData.ipos;
+
+  if (prestigeData.ipos >= 3) {
+    showHallOfFame();
+    return;
+  }
+
+  notify(`Prestige! Starting new company with ${(prestigeData.revMult).toFixed(1)}x revenue multiplier.`, 'success');
+  resetForPrestige();
+}
+
+function resetForPrestige() {
+  initGame();
+  G.convRate += prestigeData.convBonus;
+  G.companyName = pickRandom(COMPANY_NAMES);
+  renderUpgrades();
+  render();
+  logEvent('New company founded. Prestige bonuses active.');
+}
+
+function showHallOfFame() {
+  const hofStats = document.getElementById('hof-stats');
+  hofStats.innerHTML = `
+    <div class="stat-row"><span class="stat-key">Companies Built</span><span class="stat-val yellow">3</span></div>
+    <div class="stat-row"><span class="stat-key">Revenue Multiplier</span><span class="stat-val">${prestigeData.revMult.toFixed(1)}x</span></div>
+    <div class="stat-row"><span class="stat-key">Click Multiplier</span><span class="stat-val">${prestigeData.clickMult.toFixed(2)}x</span></div>
+    <div class="stat-row"><span class="stat-key">Conversion Bonus</span><span class="stat-val">+${(prestigeData.convBonus*100).toFixed(0)}%</span></div>
+    <div class="stat-row"><span class="stat-key">Status</span><span class="stat-val" style="color:var(--yellow)">Legendary Founder</span></div>
+  `;
+  document.getElementById('hof-overlay').classList.remove('hidden');
+}
+
+// ============================================================
+//  GAME OVER
+// ============================================================
+function triggerGameOver() {
+  G.gameOver = true;
+  document.getElementById('gameover-body').textContent =
+    `After ${fmtNum(G.totalUsers)} total users and ${fmt(G.mrr)} in monthly revenue, ${G.companyName} ran out of cash. The dream lives on.`;
+  document.getElementById('gameover-overlay').classList.remove('hidden');
+}
+
+function restartGame(keepPrestige = false) {
+  document.getElementById('gameover-overlay').classList.add('hidden');
+  document.getElementById('hof-overlay').classList.add('hidden');
+  if (!keepPrestige) {
+    prestigeData = { ipos: 0, clickMult: 1, revMult: 1, convBonus: 0 };
+    document.getElementById('ipo-count-display').textContent = '0';
+  }
+  initGame();
+  G.convRate += prestigeData.convBonus;
+  renderUpgrades();
+  render();
+  logEvent('New game started.');
+}
+
+// ============================================================
+//  RANDOM EVENTS
+// ============================================================
+let currentEvent = null;
+
+function triggerRandomEvent() {
+  // Pick event not recently fired
+  currentEvent = pickRandom(RANDOM_EVENTS);
+  const ev = currentEvent;
+
+  document.getElementById('ev-type').textContent = ev.type;
+  document.getElementById('ev-title').textContent = ev.title;
+  document.getElementById('ev-body').textContent = ev.body;
+
+  const choicesEl = document.getElementById('ev-choices');
+  choicesEl.innerHTML = '';
+  ev.choices.forEach(choice => {
+    const el = document.createElement('button');
+    el.className = 'event-choice';
+    el.innerHTML = `<div class="event-choice-title">${choice.title}</div><div class="event-choice-desc">${choice.desc}</div>`;
+    el.onclick = () => {
+      choice.onChoose();
+      document.getElementById('event-overlay').classList.add('hidden');
+      currentEvent = null;
+    };
+    choicesEl.appendChild(el);
+  });
+
+  document.getElementById('event-overlay').classList.remove('hidden');
+  logEvent(`Event: ${ev.title}`);
+}
+
+// ============================================================
+//  UPGRADES
+// ============================================================
+function isUpgradeVisible(upg) {
+  if (upg.unlockCash !== undefined && G.cash < upg.unlockCash) return false;
+  if (upg.unlockUsers !== undefined && G.totalUsers < upg.unlockUsers) return false;
+  if (upg.unlockPaying !== undefined && G.payingUsers < upg.unlockPaying) return false;
+  return true;
+}
+
+function buyUpgrade(id) {
+  const upg = UPGRADES.find(u => u.id === id);
+  if (!upg || G.purchased[id]) return;
+  if (!isUpgradeVisible(upg)) return;
+  if (G.cash < upg.cost) { notify('Not enough cash!', 'danger'); return; }
+  G.cash -= upg.cost;
+  G.purchased[id] = true;
+  upg.onBuy();
+  notify(`Purchased: ${upg.name}`, 'success');
+  logEvent(`Bought: ${upg.name} for ${fmt(upg.cost)}`);
+  renderUpgrades();
+  render();
+}
+
+function renderUpgrades() {
+  const container = document.getElementById('upgrades-list');
+  container.innerHTML = '';
+
+  const sections = [
+    { label: 'Acquisition', types: ['auto'], icon: '📡' },
+    { label: 'Product & Growth', types: ['upgrade'], icon: '⚡' },
+    { label: 'Pricing Plans', types: ['plan'], icon: '💰' },
+    { label: 'Team', types: ['team'], icon: '👥' },
+  ];
+
+  sections.forEach(section => {
+    const upgrades = UPGRADES.filter(u => section.types.includes(u.type));
+    const visible = upgrades.filter(u => isUpgradeVisible(u) || G.purchased[u.id]);
+    const nextLocked = upgrades.find(u => !isUpgradeVisible(u) && !G.purchased[u.id]);
+
+    if (visible.length === 0 && !nextLocked) return;
+
+    const sTitle = document.createElement('div');
+    sTitle.className = 'upgrade-section-title';
+    sTitle.textContent = section.icon + ' ' + section.label;
+    container.appendChild(sTitle);
+
+    visible.forEach(upg => {
+      const bought = G.purchased[upg.id];
+      const canAfford = G.cash >= upg.cost;
+
+      const card = document.createElement('div');
+      card.className = 'upgrade-card' + (bought ? ' bought' : '') + (!bought && canAfford ? ' affordable' : '');
+      card.onclick = () => { if (!bought) buyUpgrade(upg.id); };
+
+      card.innerHTML = `
+        <div class="upgrade-header">
+          <div class="upgrade-name">${upg.name}</div>
+          <div class="upgrade-cost ${bought ? '' : !canAfford ? 'cant-afford' : ''}">${bought ? '✓' : fmt(upg.cost)}</div>
+        </div>
+        <div class="upgrade-desc">${upg.desc}</div>
+        ${upg.isHire && !bought ? `<div class="hire-monthly">+${fmt(upg.monthlyCost)}/mo burn</div>` : ''}
+        <span class="upgrade-tag ${upg.tag}">${upg.tagLabel}</span>
+      `;
+
+      container.appendChild(card);
+    });
+
+    // Show next locked upgrade as teaser
+    if (nextLocked) {
+      const card = document.createElement('div');
+      card.className = 'upgrade-card locked';
+      let lockHint = '';
+      if (nextLocked.unlockUsers) lockHint = `Unlocks at ${fmtNum(nextLocked.unlockUsers)} users`;
+      else if (nextLocked.unlockPaying) lockHint = `Unlocks at ${fmtNum(nextLocked.unlockPaying)} paying users`;
+      else if (nextLocked.unlockCash) lockHint = `Unlocks at ${fmt(nextLocked.unlockCash)} cash`;
+
+      card.innerHTML = `
+        <div class="upgrade-header">
+          <div class="upgrade-name">🔒 ${nextLocked.name}</div>
+          <div class="upgrade-cost">${fmt(nextLocked.cost)}</div>
+        </div>
+        <div class="upgrade-desc">${lockHint}</div>
+        <span class="upgrade-tag ${nextLocked.tag}">${nextLocked.tagLabel}</span>
+      `;
+      container.appendChild(card);
+    }
+  });
+}
+
+// ============================================================
+//  RENDER
+// ============================================================
+function render() {
+  if (G.gameOver) return;
+
+  // Stage
+  document.getElementById('company-stage').textContent = STAGE_EMOJIS[G.stage];
+  document.getElementById('stage-emoji').textContent = STAGE_EMOJIS[G.stage];
+  document.getElementById('stage-label').textContent = STAGE_LABELS[G.stage];
+  document.getElementById('company-name').textContent = G.companyName;
+  document.getElementById('company-name-header').textContent = G.companyName;
+
+  // Click power
+  const cp = Math.ceil(G.clickPower * prestigeData.clickMult);
+  document.getElementById('click-power-display').textContent = fmtNum(cp);
+
+  // User stats
+  document.getElementById('s-total-users').textContent = fmtNum(G.totalUsers);
+  document.getElementById('s-paying').textContent = fmtNum(Math.floor(G.payingUsers));
+  document.getElementById('s-conv').textContent = fmtRate(G.convRate);
+  document.getElementById('s-churn').textContent = fmtRate(G.churnRate) + '/mo';
+  document.getElementById('s-auto').textContent = G.autoRate.toFixed(1) + '/s';
+
+  // Revenue stats
+  const mrr = G.mrr;
+  const arr = mrr * 12;
+  const burn = G.burnRate;
+  const net = mrr - burn;
+
+  document.getElementById('s-mrr').textContent = fmt(mrr);
+  document.getElementById('s-arr').textContent = fmt(arr);
+  document.getElementById('s-arpu').textContent = fmt(G.arpu) + '/mo';
+  document.getElementById('s-burn').textContent = fmt(burn) + '/mo';
+
+  // Runway
+  let runwayText = '--';
+  let runwayMonths = Infinity;
+  if (burn > mrr && burn > 0) {
+    runwayMonths = G.cash / (burn - mrr);
+    runwayText = runwayMonths.toFixed(1) + ' mo';
+  } else if (net > 0) {
+    runwayText = 'Profitable';
+  }
+
+  document.getElementById('s-runway').textContent = runwayText;
+  document.getElementById('h-runway').textContent = runwayText;
+  document.getElementById('h-runway').className = 'hstat-val ' + (runwayMonths < 3 ? 'red' : runwayMonths < 6 ? 'yellow' : 'green');
+
+  // Runway bar
+  const barFill = document.getElementById('runway-bar-fill');
+  const barPct = runwayMonths === Infinity ? 100 : Math.min(100, (runwayMonths / 24) * 100);
+  barFill.style.width = barPct + '%';
+  barFill.style.background = runwayMonths < 3 ? 'var(--red)' : runwayMonths < 6 ? 'var(--yellow)' : 'var(--green)';
+
+  // Header stats
+  document.getElementById('h-cash').textContent = fmt(G.cash);
+  document.getElementById('h-cash').className = 'hstat-val ' + (G.cash < 10000 ? 'red' : 'green');
+  document.getElementById('h-mrr').textContent = fmt(mrr);
+  document.getElementById('h-burn').textContent = fmt(burn);
+
+  const equityPct = (G.investorEquity * 100).toFixed(1) + '%';
+  document.getElementById('h-equity').textContent = (100 - G.investorEquity * 100).toFixed(1) + '%';
+  document.getElementById('s-equity').textContent = equityPct;
+  document.getElementById('s-your-equity').textContent = (100 - G.investorEquity * 100).toFixed(1) + '%';
+  document.getElementById('s-raised').textContent = fmt(G.totalRaised);
+
+  // Funding round display
+  const roundIdx = G.fundingRound;
+  const roundName = roundIdx >= 0 ? FUNDING_ROUNDS[roundIdx].name : 'Pre-Funding';
+  document.getElementById('s-round').textContent = roundName;
+
+  // Prestige stats
+  document.getElementById('s-ipos').textContent = prestigeData.ipos;
+  document.getElementById('s-click-mult').textContent = prestigeData.clickMult.toFixed(2) + 'x';
+  document.getElementById('s-rev-mult').textContent = prestigeData.revMult.toFixed(2) + 'x';
+  document.getElementById('s-conv-bonus').textContent = '+' + (prestigeData.convBonus * 100).toFixed(0) + '%';
+
+  // Plan distribution
+  const paying = Math.floor(G.payingUsers);
+  if (G.plansUnlocked.enterprise) {
+    document.getElementById('p-basic').textContent = Math.floor(paying * G.planDist.basic);
+    document.getElementById('p-pro').textContent = Math.floor(paying * G.planDist.pro);
+    document.getElementById('p-ent').textContent = Math.floor(paying * G.planDist.enterprise);
+  } else if (G.plansUnlocked.pro) {
+    document.getElementById('p-basic').textContent = Math.floor(paying * G.planDist.basic);
+    document.getElementById('p-pro').textContent = Math.floor(paying * G.planDist.pro);
+    document.getElementById('p-ent').textContent = '0';
+  } else if (G.plansUnlocked.basic) {
+    document.getElementById('p-basic').textContent = paying;
+    document.getElementById('p-pro').textContent = '0';
+    document.getElementById('p-ent').textContent = '0';
+  } else {
+    document.getElementById('p-basic').textContent = '0';
+    document.getElementById('p-pro').textContent = '0';
+    document.getElementById('p-ent').textContent = '0';
+  }
+  document.getElementById('p-free').textContent = Math.max(0, Math.floor(G.totalUsers) - paying);
+
+  // Milestone progress
+  const nextRoundIdx = G.fundingRound + 1;
+  if (nextRoundIdx < FUNDING_ROUNDS.length) {
+    const nextRound = FUNDING_ROUNDS[nextRoundIdx];
+    document.getElementById('milestone-title').textContent = 'Next: ' + nextRound.label;
+    let prog = 0;
+    let rightLabel = fmtNum(nextRound.triggerUsers) + ' users';
+    if (nextRound.triggerMRR > 0 && G.totalUsers >= nextRound.triggerUsers) {
+      prog = Math.min(1, G.mrr / nextRound.triggerMRR);
+      rightLabel = fmt(nextRound.triggerMRR) + ' MRR';
+      document.getElementById('milestone-left').textContent = fmt(G.mrr);
+    } else {
+      prog = Math.min(1, G.totalUsers / nextRound.triggerUsers);
+      document.getElementById('milestone-left').textContent = fmtNum(Math.floor(G.totalUsers));
+    }
+    document.getElementById('milestone-bar').style.width = (prog * 100) + '%';
+    document.getElementById('milestone-right').textContent = rightLabel;
+  } else {
+    document.getElementById('milestone-title').textContent = '🚀 IPO Achieved!';
+    document.getElementById('milestone-bar').style.width = '100%';
+  }
+
+  // Active effects
+  const effectsBlock = document.getElementById('effects-block');
+  const effectsList = document.getElementById('effects-list');
+  if (G.activeEffects.length > 0) {
+    effectsBlock.style.display = '';
+    effectsList.innerHTML = '';
+    G.activeEffects.forEach(ef => {
+      const remaining = Math.ceil(ef.duration - ef.elapsed);
+      const el = document.createElement('span');
+      el.className = 'effect-badge active';
+      el.textContent = `${ef.label} (${remaining}s)`;
+      effectsList.appendChild(el);
+    });
+  } else {
+    effectsBlock.style.display = 'none';
+  }
+
+  // Team block
+  const teamBlock = document.getElementById('team-block');
+  const employeeList = document.getElementById('employee-list');
+  const hiredIds = Object.keys(G.hiredTeam);
+  if (hiredIds.length > 0) {
+    teamBlock.style.display = '';
+    employeeList.innerHTML = '';
+    hiredIds.forEach(id => {
+      const info = TEAM_INFO[id];
+      if (!info) return;
+      const el = document.createElement('div');
+      el.className = 'employee-item';
+      el.innerHTML = `
+        <div>
+          <div class="employee-name">${info.name}</div>
+          <div class="employee-role">${info.role}</div>
+        </div>
+        <div class="employee-cost">${fmt(info.cost)}/mo</div>
+      `;
+      employeeList.appendChild(el);
+    });
+  } else {
+    teamBlock.style.display = 'none';
+  }
+
+  // Warn on low runway
+  if (runwayMonths < 2 && runwayMonths !== Infinity) {
+    document.getElementById('s-runway').classList.add('danger-pulse');
+  } else {
+    document.getElementById('s-runway').classList.remove('danger-pulse');
+  }
+
+  // Refresh upgrades occasionally (every ~5s)
+  if (G.tick % 50 === 0) renderUpgrades();
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+function init() {
+  initGame();
+  renderUpgrades();
+  render();
+  setInterval(gameTick, TICK_MS);
+  logEvent('Company founded. Time to build something great.');
+
+  // Keyboard: click with spacebar
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space' && !isModalOpen()) {
+      e.preventDefault();
+      const btn = document.getElementById('click-btn');
+      const rect = btn.getBoundingClientRect();
+      handleClick({ clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 });
+    }
+  });
+}
+
+init();
+
+// Mobile tab switching
+function switchTab(panelId, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('tab-active'));
+  document.querySelectorAll('#mobile-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(panelId).classList.add('tab-active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
