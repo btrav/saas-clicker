@@ -941,6 +941,207 @@
   }
 
 
+  /* PATH SELECTION MODAL */
+  #path-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    backdrop-filter: blur(8px);
+  }
+
+  #path-overlay.hidden { display: none; }
+
+  .path-modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 560px;
+    width: 92%;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
+
+  .path-modal h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    letter-spacing: -0.4px;
+  }
+
+  .path-modal > p {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 28px;
+  }
+
+  .path-choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 500px) {
+    .path-choices { grid-template-columns: 1fr; }
+    .path-modal { padding: 24px 18px; }
+  }
+
+  .path-card {
+    background: var(--bg3);
+    border: 2px solid var(--border2);
+    border-radius: 14px;
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+  }
+
+  .path-card:hover { border-color: var(--accent); background: #1a1a2e; }
+  .path-card.bootstrap:hover { border-color: var(--green); background: #0f1f14; }
+
+  .path-card-icon { font-size: 36px; margin-bottom: 10px; }
+
+  .path-card-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .path-card-desc {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .path-card-traits { display: flex; flex-direction: column; gap: 4px; }
+
+  .path-trait { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+  .path-trait.good { color: var(--green); }
+  .path-trait.bad { color: var(--red); }
+
+  /* ACQUISITION (BOOTSTRAP WIN) MODAL */
+  #acquisition-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 150;
+    backdrop-filter: blur(6px);
+  }
+
+  #acquisition-overlay.hidden { display: none; }
+
+  .acquisition-modal {
+    background: var(--bg2);
+    border: 1px solid var(--green);
+    border-radius: 20px;
+    padding: 36px;
+    max-width: 460px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(34,197,94,0.2);
+  }
+
+  .acquisition-emoji { font-size: 56px; margin-bottom: 10px; }
+
+  .acquisition-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+
+  .acquisition-body {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .acquisition-offer {
+    background: var(--bg3);
+    border: 1px solid var(--green);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .acquisition-amount {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--green);
+    font-family: var(--mono);
+    margin-bottom: 4px;
+  }
+
+  .acquisition-multiple {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 8px;
+  }
+
+  .acquisition-tagline {
+    font-size: 12px;
+    color: var(--yellow);
+    font-weight: 600;
+  }
+
+  .acq-btn-row { display: flex; gap: 10px; justify-content: center; }
+
+  /* CONSULTING GIG BUTTON */
+  #consulting-btn {
+    width: 100%;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #064e3b, #065f46);
+    border: 1px solid var(--green);
+    border-radius: 10px;
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.1s;
+    font-family: var(--sans);
+    display: none;
+  }
+
+  #consulting-btn:hover:not(:disabled) { filter: brightness(1.2); }
+  #consulting-btn:active:not(:disabled) { transform: scale(0.99); }
+  #consulting-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+
+  #consulting-btn-sub {
+    font-size: 10px;
+    opacity: 0.8;
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  /* Path indicator badge */
+  .path-indicator {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text3);
+  }
+
+  .path-indicator.vc { color: var(--accent2); border-color: var(--accent); }
+  .path-indicator.bootstrap { color: var(--green); border-color: var(--green); }
+
+  /* Bootstrap green button */
+  .btn-green { background: var(--green); color: #000; }
+  .btn-green:hover { filter: brightness(1.1); }
+
   /* Employee list */
   .employee-list { display: flex; flex-direction: column; gap: 4px; }
 
@@ -967,8 +1168,9 @@
     <span id="company-stage">🌱</span>
     <h1>Upstart Startup</h1>
     <span id="company-name-header" style="color:var(--text2);font-size:12px;"></span>
+    <span id="path-indicator-badge" class="path-indicator" style="display:none;"></span>
     <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
-      <div id="ipos-badge">🏆 IPOs: <span id="ipo-count-display">0</span>/3</div>
+      <div id="ipos-badge">🏆 <span id="ipos-badge-text">IPOs: <span id="ipo-count-display">0</span>/3</span></div>
       <div id="header-stats">
         <div class="hstat">
           <span class="hstat-label">Cash</span>
@@ -1011,7 +1213,13 @@
         <div id="click-btn-sub" class="click-btn-sub">+<span id="click-power-display">1</span> user per click</div>
       </button>
 
-      <!-- Funding milestone progress -->
+      <!-- Bootstrap: Consulting Gig button -->
+      <button id="consulting-btn" onclick="doConsultingGig()">
+        <div>💼 Consulting Gig</div>
+        <div id="consulting-btn-sub">+$2k–$5k cash, but distracts from growth</div>
+      </button>
+
+      <!-- Milestone progress (VC: funding, Bootstrap: profitability) -->
       <div class="milestone-row" id="milestone-wrap">
         <div class="milestone-title" id="milestone-title">Next: Pre-Seed Round</div>
         <div class="progress-wrap">
@@ -1074,7 +1282,8 @@
     <div class="panel" id="right-panel">
       <div class="panel-title">Dashboard</div>
 
-      <div class="stats-block">
+      <!-- VC path: Funding block -->
+      <div class="stats-block" id="vc-funding-block">
         <div class="stats-block-title">Funding</div>
         <div class="stat-row"><span class="stat-key">Round</span><span class="stat-val" id="s-round" style="color:var(--purple)">Pre-Funding</span></div>
         <div class="stat-row"><span class="stat-key">Raised</span><span class="stat-val green" id="s-raised">$0</span></div>
@@ -1082,9 +1291,19 @@
         <div class="stat-row"><span class="stat-key">Your Equity</span><span class="stat-val green" id="s-your-equity">100%</span></div>
       </div>
 
+      <!-- Bootstrap path: Profitability block -->
+      <div class="stats-block" id="bootstrap-profit-block" style="display:none;">
+        <div class="stats-block-title">Profitability</div>
+        <div class="stat-row"><span class="stat-key">Monthly Profit</span><span class="stat-val" id="s-monthly-profit">$0</span></div>
+        <div class="stat-row"><span class="stat-key">Cash Flow</span><span class="stat-val" id="s-cashflow">Burning</span></div>
+        <div class="stat-row" id="s-months-to-profit-row"><span class="stat-key">Months to Profit</span><span class="stat-val yellow" id="s-months-to-profit">--</span></div>
+        <div class="stat-row"><span class="stat-key">Equity Sold</span><span class="stat-val green">0% — fully yours</span></div>
+      </div>
+
       <div class="stats-block">
         <div class="stats-block-title">Prestige Bonuses</div>
-        <div class="stat-row"><span class="stat-key">IPOs Completed</span><span class="stat-val yellow" id="s-ipos">0</span></div>
+        <div class="stat-row" id="vc-ipos-row"><span class="stat-key">IPOs Completed</span><span class="stat-val yellow" id="s-ipos">0</span></div>
+        <div class="stat-row" id="bs-wins-row" style="display:none;"><span class="stat-key">Bootstrap Exits</span><span class="stat-val" style="color:var(--green)" id="s-bswins">0</span></div>
         <div class="stat-row"><span class="stat-key">Click Multiplier</span><span class="stat-val" id="s-click-mult">1x</span></div>
         <div class="stat-row"><span class="stat-key">Revenue Multiplier</span><span class="stat-val" id="s-rev-mult">1x</span></div>
         <div class="stat-row"><span class="stat-key">Conv. Bonus</span><span class="stat-val" id="s-conv-bonus">+0%</span></div>
@@ -1179,6 +1398,56 @@
   </div>
 </div>
 
+<!-- PATH SELECTION -->
+<div id="path-overlay">
+  <div class="path-modal">
+    <h2>Choose Your Path</h2>
+    <p>How do you want to build your company? This shapes everything.</p>
+    <div class="path-choices">
+      <div class="path-card" onclick="choosePath('vc')">
+        <div class="path-card-icon">🏦</div>
+        <div class="path-card-name">VC-Backed</div>
+        <div class="path-card-desc">Raise from investors, scale fast, and aim for an IPO. Trade equity for rocket fuel.</div>
+        <div class="path-card-traits">
+          <div class="path-trait bad">✗ Start with $5k</div>
+          <div class="path-trait good">✓ Funding rounds unlock cash</div>
+          <div class="path-trait bad">✗ Dilute your equity</div>
+          <div class="path-trait good">✓ Win via IPO</div>
+        </div>
+      </div>
+      <div class="path-card bootstrap" onclick="choosePath('bootstrap')">
+        <div class="path-card-icon">🥾</div>
+        <div class="path-card-name">Bootstrapped</div>
+        <div class="path-card-desc">Personal savings, consulting gigs, and relentless focus. Slower but you keep 100%.</div>
+        <div class="path-card-traits">
+          <div class="path-trait good">✓ Start with $15k savings</div>
+          <div class="path-trait good">✓ Higher conversion (niche focus)</div>
+          <div class="path-trait bad">✗ No investor funding</div>
+          <div class="path-trait good">✓ Win via acquisition — keep everything</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACQUISITION MODAL (Bootstrap win) -->
+<div id="acquisition-overlay" class="hidden">
+  <div class="acquisition-modal">
+    <div class="acquisition-emoji">🤝</div>
+    <div class="acquisition-title">Acquisition Offer!</div>
+    <div class="acquisition-body" id="acq-body">A strategic buyer has noticed what you've built.</div>
+    <div class="acquisition-offer">
+      <div class="acquisition-amount" id="acq-amount">$0</div>
+      <div class="acquisition-multiple" id="acq-multiple">8× ARR</div>
+      <div class="acquisition-tagline">You own 100% — this is all yours.</div>
+    </div>
+    <div class="acq-btn-row">
+      <button class="btn btn-green" onclick="acceptAcquisition()">Accept &amp; Exit</button>
+      <button class="btn" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);" onclick="declineAcquisition()">Decline — Keep Growing</button>
+    </div>
+  </div>
+</div>
+
 <!-- NOTIFICATIONS -->
 <div id="notif-container"></div>
 
@@ -1197,28 +1466,34 @@ const STAGE_LABELS = ['Idea Stage','Early Startup','Scaling','Growth Stage','Hyp
 
 let prestigeData = {
   ipos: 0,
+  bswins: 0,        // bootstrap acquisition wins
   clickMult: 1,
   revMult: 1,
-  convBonus: 0
+  convBonus: 0,
+  bsConvBonus: 0,   // bootstrap prestige: +0.5% conv per win
+  bsCashBonus: 0    // bootstrap prestige: +$5k starting cash per win
 };
 
 let G = {}; // game state
 
-function initGame() {
+function initGame(path) {
+  const isBS = path === 'bootstrap';
   G = {
+    // Path
+    path: path || 'vc',
     // Core resources
-    cash: 5000,       // starting cash
+    cash: isBS ? 15000 + prestigeData.bsCashBonus : 5000,
     totalUsers: 0,
     payingUsers: 0,
     // Rates
-    convRate: 0.02,   // 2% base conversion
-    churnRate: 0.03,  // 3%/mo base churn
-    clickPower: 1,    // users per click
-    autoRate: 0,      // users per second from auto-clickers
+    convRate: isBS ? 0.03 : 0.02,
+    churnRate: isBS ? 0.025 : 0.03,
+    clickPower: 1,
+    autoRate: 0,
     // Revenue
-    arpu: 0,          // avg revenue per paying user/mo
+    arpu: 0,
     mrr: 0,
-    burnRate: 0,      // monthly expenses
+    burnRate: 0,
     totalRaised: 0,
     investorEquity: 0,
     // Plans unlocked
@@ -1226,16 +1501,16 @@ function initGame() {
     // Plan distribution (of paying users)
     planDist: { basic: 1, pro: 0, enterprise: 0 },
     // Team
-    hiredTeam: {},    // id -> true
+    hiredTeam: {},
     // Upgrades
-    purchased: {},    // id -> true
+    purchased: {},
     // Events
     activeEffects: [],
-    // Funding rounds
-    fundingRound: -1,  // index into FUNDING_ROUNDS (-1 = pre-seed pending)
+    // Funding rounds (VC only)
+    fundingRound: -1,
     fundingLocked: false,
     // Random events
-    lastEventTime: Date.now() + 30000, // first event after 30s
+    lastEventTime: Date.now() + 30000,
     nextEventInterval: 80000,
     // Ticks
     tick: 0,
@@ -1246,7 +1521,13 @@ function initGame() {
     // Game state
     gameOver: false,
     ipoTriggered: false,
-    ipoAvailable: false
+    ipoAvailable: false,
+    // Bootstrap-specific
+    consultingCooldown: 0,       // seconds remaining on cooldown
+    consultingDistraction: false,
+    acquisitionTriggered: false,
+    acquisitionMultiple: 0,      // the X in X*ARR offer
+    nicheFocusCap: false         // whether Niche Focus upgrade is active (50k user cap)
   };
 }
 
@@ -1694,6 +1975,43 @@ const UPGRADES = [
     },
     repeatable: false
   },
+
+  // ---- BOOTSTRAP-ONLY UPGRADES ----
+  {
+    id: 'bs_annual_plans',
+    name: 'Annual Plan Discount',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Customers prepay yearly at a discount. +20% conversion rate, -15% effective ARPU.',
+    cost: 500,
+    unlockCash: 0,
+    bootstrapOnly: true,
+    onBuy: () => {
+      G.convRate *= 1.20;
+      G.arpu *= 0.85;
+      G.bsAnnualPlanActive = true;
+    },
+    repeatable: false
+  },
+  {
+    id: 'bs_niche_focus',
+    name: 'Niche Focus',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Double down on one tight niche. +25% conversion, -10% churn. Caps total users at 50,000.',
+    cost: 1000,
+    unlockCash: 0,
+    bootstrapOnly: true,
+    tooltip: 'Niche Focus caps your total users at 50,000. Within that ceiling, you convert and retain at much higher rates.',
+    onBuy: () => {
+      G.convRate *= 1.25;
+      G.churnRate = Math.max(0.005, G.churnRate * 0.90);
+      G.nicheFocusCap = true;
+    },
+    repeatable: false
+  },
 ];
 
 const TEAM_INFO = {
@@ -2059,6 +2377,8 @@ function recalcARPU() {
   } else {
     arpu = 29;
   }
+  // Bootstrap annual plan discount: -15% ARPU
+  if (G.bsAnnualPlanActive) arpu *= 0.85;
   G.arpu = arpu;
 }
 
@@ -2115,16 +2435,28 @@ function handleClick(e) {
 const TICK_MS = 100; // 10 ticks/second
 
 function gameTick() {
-  if (G.gameOver || G.ipoTriggered) return;
+  if (G.gameOver || G.ipoTriggered || G.acquisitionTriggered) return;
+  if (!document.getElementById('path-overlay').classList.contains('hidden')) return;
 
   const now = Date.now();
   const dt = Math.min((now - G.lastTick) / 1000, 0.5); // seconds, capped
   G.lastTick = now;
   G.tick++;
 
-  // -- Auto users --
+  // -- Consulting cooldown tick --
+  if (G.consultingCooldown > 0) {
+    G.consultingCooldown = Math.max(0, G.consultingCooldown - dt);
+  }
+
+  // -- Auto users (with distraction debuff in bootstrap) --
   if (G.autoRate > 0) {
-    G.totalUsers += G.autoRate * dt;
+    const autoMult = G.consultingDistraction ? 0.7 : 1.0;
+    G.totalUsers += G.autoRate * autoMult * dt;
+  }
+
+  // -- Bootstrap niche focus cap --
+  if (G.nicheFocusCap && G.totalUsers > 50000) {
+    G.totalUsers = 50000;
   }
 
   // -- Paying user conversion --
@@ -2167,8 +2499,12 @@ function gameTick() {
     return;
   }
 
-  // -- Check funding round triggers --
-  checkFundingTriggers();
+  // -- Path-specific win condition checks --
+  if (G.path === 'vc') {
+    checkFundingTriggers();
+  } else {
+    checkAcquisitionTrigger();
+  }
 
   // -- Check random events --
   if (now > G.lastEventTime + G.nextEventInterval && !isModalOpen()) {
@@ -2185,9 +2521,11 @@ function gameTick() {
 }
 
 function isModalOpen() {
-  return !document.getElementById('event-overlay').classList.contains('hidden') ||
+  return !document.getElementById('path-overlay').classList.contains('hidden') ||
+    !document.getElementById('event-overlay').classList.contains('hidden') ||
     !document.getElementById('funding-overlay').classList.contains('hidden') ||
-    !document.getElementById('ipo-overlay').classList.contains('hidden');
+    !document.getElementById('ipo-overlay').classList.contains('hidden') ||
+    !document.getElementById('acquisition-overlay').classList.contains('hidden');
 }
 
 // ============================================================
@@ -2262,6 +2600,94 @@ function acceptFunding(roundIdx, term) {
 }
 
 // ============================================================
+//  BOOTSTRAP: CONSULTING GIG
+// ============================================================
+const CONSULTING_COOLDOWN = 90;  // seconds
+const CONSULTING_DISTRACTION_DURATION = 60; // seconds
+
+function doConsultingGig() {
+  if (G.consultingCooldown > 0) return;
+  const earned = Math.floor(2000 + Math.random() * 3000);
+  G.cash += earned;
+  G.consultingCooldown = CONSULTING_COOLDOWN;
+  // Apply distraction debuff
+  G.consultingDistraction = true;
+  addEffect('consulting_distraction', 'Consulting Distraction', CONSULTING_DISTRACTION_DURATION,
+    null,
+    () => { G.consultingDistraction = false; }
+  );
+  notify(`Consulting gig done! +${fmt(earned)} cash. Auto-acquisition -30% for 60s.`, 'warn');
+  logEvent(`Consulting gig: +${fmt(earned)} cash (distraction debuff active).`);
+  renderUpgrades();
+}
+
+// ============================================================
+//  BOOTSTRAP: ACQUISITION WIN
+// ============================================================
+function checkAcquisitionTrigger() {
+  if (G.acquisitionTriggered || isModalOpen()) return;
+  const threshold = G.acquisitionMrrThreshold || 50000;
+  if (G.mrr >= threshold && G.cash > 0 && G.investorEquity === 0) {
+    G.acquisitionTriggered = true;
+    // Random multiple per run: 8-12x ARR, grows with re-triggers
+    G.acquisitionMultiple = 8 + Math.floor(Math.random() * 5);
+    showAcquisitionModal();
+  }
+}
+
+function showAcquisitionModal() {
+  const arr = G.mrr * 12;
+  const offerAmount = arr * G.acquisitionMultiple;
+  document.getElementById('acq-body').textContent =
+    `A strategic buyer has been watching ${G.companyName}. They want to acquire your product, your users, and your team. No investors, no board — this offer goes straight to you.`;
+  document.getElementById('acq-amount').textContent = fmt(offerAmount);
+  document.getElementById('acq-multiple').textContent = `${G.acquisitionMultiple}× ARR — ${fmt(arr)} annual revenue`;
+  document.getElementById('acquisition-overlay').classList.remove('hidden');
+  logEvent(`Acquisition offer: ${fmt(offerAmount)} (${G.acquisitionMultiple}× ARR)`);
+}
+
+function acceptAcquisition() {
+  document.getElementById('acquisition-overlay').classList.add('hidden');
+  prestigeData.bswins += 1;
+  prestigeData.bsConvBonus += 0.005;   // +0.5% conv per win
+  prestigeData.bsCashBonus += 5000;    // +$5k starting cash per win
+
+  // Show win screen reusing IPO overlay with custom content
+  const arr = G.mrr * 12;
+  const offerAmount = arr * G.acquisitionMultiple;
+  document.getElementById('ipo-overlay').querySelector('.ipo-emoji').textContent = '🤝';
+  document.getElementById('ipo-overlay').querySelector('.ipo-title').textContent = 'Acquired!';
+  document.getElementById('ipo-body').textContent =
+    `${G.companyName} has been acquired for ${fmt(offerAmount)}. You owned 100% — every dollar is yours. You did it without a single investor.`;
+  document.getElementById('ipo-bonus').textContent =
+    `Next bootstrap run: +0.5% starting conversion, +$5k starting cash`;
+  document.getElementById('ipo-overlay').querySelector('button').textContent = 'Start Your Next Company';
+  document.getElementById('ipo-overlay').querySelector('button').onclick = doBootstrapPrestige;
+  document.getElementById('ipo-overlay').classList.remove('hidden');
+  updateBadge();
+}
+
+function declineAcquisition() {
+  document.getElementById('acquisition-overlay').classList.add('hidden');
+  G.acquisitionTriggered = false; // Allow it to re-trigger as MRR grows
+  // Next offer triggers at 20% higher MRR
+  G.acquisitionMrrThreshold = G.mrr * 1.2;
+  notify('Offer declined. Keep growing — the next offer will be bigger.', 'info');
+  logEvent('Acquisition offer declined. Holding out for more.');
+}
+
+function doBootstrapPrestige() {
+  document.getElementById('ipo-overlay').classList.add('hidden');
+  // Restore IPO overlay to VC defaults for future VC runs
+  document.getElementById('ipo-overlay').querySelector('.ipo-emoji').textContent = '🚀';
+  document.getElementById('ipo-overlay').querySelector('.ipo-title').textContent = 'IPO Achieved!';
+  document.getElementById('ipo-overlay').querySelector('button').textContent = 'Ring the Bell & Start New Company';
+  document.getElementById('ipo-overlay').querySelector('button').onclick = doPrestige;
+  updateBadge();
+  showPathSelection();
+}
+
+// ============================================================
 //  IPO / PRESTIGE
 // ============================================================
 function triggerIPO() {
@@ -2282,7 +2708,7 @@ function doPrestige() {
   prestigeData.convBonus += 0.05;
   prestigeData.clickMult += 0.25;
 
-  document.getElementById('ipo-count-display').textContent = prestigeData.ipos;
+  updateBadge();
 
   if (prestigeData.ipos >= 3) {
     showHallOfFame();
@@ -2290,16 +2716,34 @@ function doPrestige() {
   }
 
   notify(`Prestige! Starting new company with ${(prestigeData.revMult).toFixed(1)}x revenue multiplier.`, 'success');
-  resetForPrestige();
+  showPathSelection();
 }
 
-function resetForPrestige() {
-  initGame();
+function resetForPrestige(path) {
+  initGame(path || 'vc');
   G.convRate += prestigeData.convBonus;
+  if (G.path === 'bootstrap') G.convRate += prestigeData.bsConvBonus;
   G.companyName = pickRandom(COMPANY_NAMES);
   renderUpgrades();
   render();
+  updateBadge();
+  updatePathUI();
   logEvent('New company founded. Prestige bonuses active.');
+}
+
+function updateBadge() {
+  const ipos = prestigeData.ipos;
+  const bswins = prestigeData.bswins;
+  const badgeEl = document.getElementById('ipos-badge-text');
+  if (ipos > 0 && bswins > 0) {
+    badgeEl.innerHTML = `🏆 ${ipos}/3 &nbsp; 🥾 ${bswins}`;
+  } else if (bswins > 0) {
+    badgeEl.innerHTML = `🥾 Exits: ${bswins}`;
+    document.getElementById('ipos-badge').style.color = 'var(--green)';
+  } else {
+    badgeEl.innerHTML = `IPOs: <span id="ipo-count-display">${ipos}</span>/3`;
+    document.getElementById('ipos-badge').style.color = 'var(--yellow)';
+  }
 }
 
 function showHallOfFame() {
@@ -2328,14 +2772,53 @@ function restartGame(keepPrestige = false) {
   document.getElementById('gameover-overlay').classList.add('hidden');
   document.getElementById('hof-overlay').classList.add('hidden');
   if (!keepPrestige) {
-    prestigeData = { ipos: 0, clickMult: 1, revMult: 1, convBonus: 0 };
-    document.getElementById('ipo-count-display').textContent = '0';
+    prestigeData = { ipos: 0, bswins: 0, clickMult: 1, revMult: 1, convBonus: 0, bsConvBonus: 0, bsCashBonus: 0 };
   }
-  initGame();
-  G.convRate += prestigeData.convBonus;
-  renderUpgrades();
-  render();
-  logEvent('New game started.');
+  updateBadge();
+  showPathSelection();
+}
+
+// ============================================================
+//  PATH SELECTION
+// ============================================================
+function showPathSelection() {
+  document.getElementById('path-overlay').classList.remove('hidden');
+}
+
+function choosePath(path) {
+  document.getElementById('path-overlay').classList.add('hidden');
+  resetForPrestige(path);
+  logEvent(path === 'bootstrap'
+    ? 'Bootstrapped path chosen. $15k in savings. Build something real.'
+    : 'VC-backed path chosen. Time to raise and scale.');
+}
+
+function updatePathUI() {
+  const isBS = G.path === 'bootstrap';
+  // Path indicator in header
+  const badge = document.getElementById('path-indicator-badge');
+  badge.style.display = '';
+  badge.textContent = isBS ? '🥾 Bootstrap' : '🏦 VC-Backed';
+  badge.className = 'path-indicator ' + (isBS ? 'bootstrap' : 'vc');
+
+  // Show/hide funding vs profitability blocks
+  document.getElementById('vc-funding-block').style.display = isBS ? 'none' : '';
+  document.getElementById('bootstrap-profit-block').style.display = isBS ? '' : 'none';
+
+  // Consulting button
+  document.getElementById('consulting-btn').style.display = isBS ? '' : 'none';
+
+  // Milestone bar label
+  if (isBS) {
+    document.getElementById('milestone-title').textContent = 'Goal: Profitability';
+    document.getElementById('milestone-bar').style.background = 'var(--green)';
+  } else {
+    document.getElementById('milestone-bar').style.background = 'var(--purple)';
+  }
+
+  // Prestige row visibility
+  document.getElementById('vc-ipos-row').style.display = isBS ? 'none' : '';
+  document.getElementById('bs-wins-row').style.display = isBS ? '' : 'none';
 }
 
 // ============================================================
@@ -2374,6 +2857,13 @@ function triggerRandomEvent() {
 //  UPGRADES
 // ============================================================
 function isUpgradeVisible(upg) {
+  // Path gating
+  if (upg.bootstrapOnly && G.path !== 'bootstrap') return false;
+  if (upg.vcOnly && G.path !== 'vc') return false;
+  // Bootstrap: team hires require cash-flow positive
+  if (upg.isHire && G.path === 'bootstrap') {
+    if (G.mrr <= G.burnRate) return false;
+  }
   if (upg.unlockCash !== undefined && G.cash < upg.unlockCash) return false;
   if (upg.unlockUsers !== undefined && G.totalUsers < upg.unlockUsers) return false;
   if (upg.unlockPaying !== undefined && G.payingUsers < upg.unlockPaying) return false;
@@ -2405,10 +2895,24 @@ function renderUpgrades() {
     { label: 'Team', types: ['team'], icon: '👥' },
   ];
 
+  // Bootstrap mode: show a note that team hires require profitability
+  if (G.path === 'bootstrap' && G.mrr <= G.burnRate) {
+    const note = document.createElement('div');
+    note.style.cssText = 'font-size:11px;color:var(--text3);padding:6px 4px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;';
+    note.textContent = '🥾 Team hires unlock when MRR exceeds burn rate (cash-flow positive)';
+    container.appendChild(note);
+  }
+
   sections.forEach(section => {
     const upgrades = UPGRADES.filter(u => section.types.includes(u.type));
-    const visible = upgrades.filter(u => isUpgradeVisible(u) || G.purchased[u.id]);
-    const nextLocked = upgrades.find(u => !isUpgradeVisible(u) && !G.purchased[u.id]);
+    // Filter out path-incompatible items entirely (don't show as locked either)
+    const pathFiltered = upgrades.filter(u => {
+      if (u.bootstrapOnly && G.path !== 'bootstrap') return false;
+      if (u.vcOnly && G.path !== 'vc') return false;
+      return true;
+    });
+    const visible = pathFiltered.filter(u => isUpgradeVisible(u) || G.purchased[u.id]);
+    const nextLocked = pathFiltered.find(u => !isUpgradeVisible(u) && !G.purchased[u.id]);
 
     if (visible.length === 0 && !nextLocked) return;
 
@@ -2425,14 +2929,17 @@ function renderUpgrades() {
       card.className = 'upgrade-card' + (bought ? ' bought' : '') + (!bought && canAfford ? ' affordable' : '');
       card.onclick = () => { if (!bought) buyUpgrade(upg.id); };
 
+      const bsTag = upg.bootstrapOnly ? `<span class="upgrade-tag" style="background:#0f2a1a;color:var(--green);">🥾 Bootstrap</span> ` : '';
+      const tipAttr = upg.tooltip ? ` data-tip="${upg.tooltip}"` : '';
+
       card.innerHTML = `
-        <div class="upgrade-header">
+        <div class="upgrade-header"${tipAttr}>
           <div class="upgrade-name">${upg.name}</div>
           <div class="upgrade-cost ${bought ? '' : !canAfford ? 'cant-afford' : ''}">${bought ? '✓' : fmt(upg.cost)}</div>
         </div>
         <div class="upgrade-desc">${upg.desc}</div>
         ${upg.isHire && !bought ? `<div class="hire-monthly">+${fmt(upg.monthlyCost)}/mo burn</div>` : ''}
-        <span class="upgrade-tag ${upg.tag}">${upg.tagLabel}</span>
+        ${bsTag}<span class="upgrade-tag ${upg.tag}">${upg.tagLabel}</span>
       `;
 
       container.appendChild(card);
@@ -2443,9 +2950,15 @@ function renderUpgrades() {
       const card = document.createElement('div');
       card.className = 'upgrade-card locked';
       let lockHint = '';
-      if (nextLocked.unlockUsers) lockHint = `Unlocks at ${fmtNum(nextLocked.unlockUsers)} users`;
-      else if (nextLocked.unlockPaying) lockHint = `Unlocks at ${fmtNum(nextLocked.unlockPaying)} paying users`;
-      else if (nextLocked.unlockCash) lockHint = `Unlocks at ${fmt(nextLocked.unlockCash)} cash`;
+      if (nextLocked.isHire && G.path === 'bootstrap') {
+        lockHint = 'Unlocks when MRR > burn rate';
+      } else if (nextLocked.unlockUsers) {
+        lockHint = `Unlocks at ${fmtNum(nextLocked.unlockUsers)} users`;
+      } else if (nextLocked.unlockPaying) {
+        lockHint = `Unlocks at ${fmtNum(nextLocked.unlockPaying)} paying users`;
+      } else if (nextLocked.unlockCash) {
+        lockHint = `Unlocks at ${fmt(nextLocked.unlockCash)} cash`;
+      }
 
       card.innerHTML = `
         <div class="upgrade-header">
@@ -2521,22 +3034,63 @@ function render() {
   document.getElementById('h-mrr').textContent = fmt(mrr);
   document.getElementById('h-burn').textContent = fmt(burn);
 
+  // VC equity / funding (only meaningful in VC path, but elements still update)
   const equityPct = (G.investorEquity * 100).toFixed(1) + '%';
-  document.getElementById('h-equity').textContent = (100 - G.investorEquity * 100).toFixed(1) + '%';
-  document.getElementById('s-equity').textContent = equityPct;
-  document.getElementById('s-your-equity').textContent = (100 - G.investorEquity * 100).toFixed(1) + '%';
-  document.getElementById('s-raised').textContent = fmt(G.totalRaised);
-
-  // Funding round display
-  const roundIdx = G.fundingRound;
-  const roundName = roundIdx >= 0 ? FUNDING_ROUNDS[roundIdx].name : 'Pre-Funding';
-  document.getElementById('s-round').textContent = roundName;
+  if (G.path === 'vc') {
+    document.getElementById('h-equity').textContent = (100 - G.investorEquity * 100).toFixed(1) + '%';
+    document.getElementById('s-equity').textContent = equityPct;
+    document.getElementById('s-your-equity').textContent = (100 - G.investorEquity * 100).toFixed(1) + '%';
+    document.getElementById('s-raised').textContent = fmt(G.totalRaised);
+    const roundIdx = G.fundingRound;
+    const roundName = roundIdx >= 0 ? FUNDING_ROUNDS[roundIdx].name : 'Pre-Funding';
+    document.getElementById('s-round').textContent = roundName;
+  } else {
+    document.getElementById('h-equity').textContent = '100%';
+  }
 
   // Prestige stats
   document.getElementById('s-ipos').textContent = prestigeData.ipos;
+  document.getElementById('s-bswins').textContent = prestigeData.bswins;
   document.getElementById('s-click-mult').textContent = prestigeData.clickMult.toFixed(2) + 'x';
   document.getElementById('s-rev-mult').textContent = prestigeData.revMult.toFixed(2) + 'x';
-  document.getElementById('s-conv-bonus').textContent = '+' + (prestigeData.convBonus * 100).toFixed(0) + '%';
+  const totalConvBonus = prestigeData.convBonus + (G.path === 'bootstrap' ? prestigeData.bsConvBonus : 0);
+  document.getElementById('s-conv-bonus').textContent = '+' + (totalConvBonus * 100).toFixed(1) + '%';
+
+  // Bootstrap profitability block
+  if (G.path === 'bootstrap') {
+    const profit = mrr - burn;
+    document.getElementById('s-monthly-profit').textContent = fmt(Math.abs(profit));
+    document.getElementById('s-monthly-profit').className = 'stat-val ' + (profit >= 0 ? 'green' : 'red');
+    const flowEl = document.getElementById('s-cashflow');
+    if (profit >= 0) {
+      flowEl.textContent = 'Profitable';
+      flowEl.className = 'stat-val green';
+      document.getElementById('s-months-to-profit-row').style.display = 'none';
+    } else {
+      flowEl.textContent = 'Burning';
+      flowEl.className = 'stat-val red';
+      document.getElementById('s-months-to-profit-row').style.display = '';
+      if (burn > 0 && G.cash > 0) {
+        const mtp = G.cash / Math.abs(profit);
+        document.getElementById('s-months-to-profit').textContent = mtp.toFixed(1) + ' mo';
+      } else {
+        document.getElementById('s-months-to-profit').textContent = '--';
+      }
+    }
+  }
+
+  // Consulting gig button (bootstrap only)
+  if (G.path === 'bootstrap') {
+    const cBtn = document.getElementById('consulting-btn');
+    const cSub = document.getElementById('consulting-btn-sub');
+    if (G.consultingCooldown > 0) {
+      cBtn.disabled = true;
+      cSub.textContent = `Cooldown: ${Math.ceil(G.consultingCooldown)}s`;
+    } else {
+      cBtn.disabled = false;
+      cSub.textContent = '+$2k–$5k cash, but distracts from growth (90s cooldown)';
+    }
+  }
 
   // Plan distribution
   const paying = Math.floor(G.payingUsers);
@@ -2560,25 +3114,42 @@ function render() {
   document.getElementById('p-free').textContent = Math.max(0, Math.floor(G.totalUsers) - paying);
 
   // Milestone progress
-  const nextRoundIdx = G.fundingRound + 1;
-  if (nextRoundIdx < FUNDING_ROUNDS.length) {
-    const nextRound = FUNDING_ROUNDS[nextRoundIdx];
-    document.getElementById('milestone-title').textContent = 'Next: ' + nextRound.label;
-    let prog = 0;
-    let rightLabel = fmtNum(nextRound.triggerUsers) + ' users';
-    if (nextRound.triggerMRR > 0 && G.totalUsers >= nextRound.triggerUsers) {
-      prog = Math.min(1, G.mrr / nextRound.triggerMRR);
-      rightLabel = fmt(nextRound.triggerMRR) + ' MRR';
-      document.getElementById('milestone-left').textContent = fmt(G.mrr);
+  if (G.path === 'bootstrap') {
+    // Bootstrap milestone: progress toward $50k MRR (acquisition trigger)
+    const ACQ_MRR = G.acquisitionMrrThreshold || 50000;
+    if (mrr >= ACQ_MRR && G.cash > 0) {
+      document.getElementById('milestone-title').textContent = '🤝 Acquisition Eligible!';
+      document.getElementById('milestone-bar').style.width = '100%';
+      document.getElementById('milestone-left').textContent = fmt(mrr);
+      document.getElementById('milestone-right').textContent = fmt(ACQ_MRR) + ' MRR';
     } else {
-      prog = Math.min(1, G.totalUsers / nextRound.triggerUsers);
-      document.getElementById('milestone-left').textContent = fmtNum(Math.floor(G.totalUsers));
+      document.getElementById('milestone-title').textContent = 'Goal: Acquisition (MRR target)';
+      const prog = Math.min(1, mrr / ACQ_MRR);
+      document.getElementById('milestone-bar').style.width = (prog * 100) + '%';
+      document.getElementById('milestone-left').textContent = fmt(mrr);
+      document.getElementById('milestone-right').textContent = fmt(ACQ_MRR) + ' MRR';
     }
-    document.getElementById('milestone-bar').style.width = (prog * 100) + '%';
-    document.getElementById('milestone-right').textContent = rightLabel;
   } else {
-    document.getElementById('milestone-title').textContent = '🚀 IPO Achieved!';
-    document.getElementById('milestone-bar').style.width = '100%';
+    const nextRoundIdx = G.fundingRound + 1;
+    if (nextRoundIdx < FUNDING_ROUNDS.length) {
+      const nextRound = FUNDING_ROUNDS[nextRoundIdx];
+      document.getElementById('milestone-title').textContent = 'Next: ' + nextRound.label;
+      let prog = 0;
+      let rightLabel = fmtNum(nextRound.triggerUsers) + ' users';
+      if (nextRound.triggerMRR > 0 && G.totalUsers >= nextRound.triggerUsers) {
+        prog = Math.min(1, G.mrr / nextRound.triggerMRR);
+        rightLabel = fmt(nextRound.triggerMRR) + ' MRR';
+        document.getElementById('milestone-left').textContent = fmt(G.mrr);
+      } else {
+        prog = Math.min(1, G.totalUsers / nextRound.triggerUsers);
+        document.getElementById('milestone-left').textContent = fmtNum(Math.floor(G.totalUsers));
+      }
+      document.getElementById('milestone-bar').style.width = (prog * 100) + '%';
+      document.getElementById('milestone-right').textContent = rightLabel;
+    } else {
+      document.getElementById('milestone-title').textContent = '🚀 IPO Achieved!';
+      document.getElementById('milestone-bar').style.width = '100%';
+    }
   }
 
   // Active effects
@@ -2638,11 +3209,11 @@ function render() {
 //  INIT
 // ============================================================
 function init() {
-  initGame();
+  // Start with a dummy game state so render() doesn't crash before path is chosen
+  initGame('vc');
   renderUpgrades();
   render();
   setInterval(gameTick, TICK_MS);
-  logEvent('Company founded. Time to build something great.');
 
   // Keyboard: click with spacebar
   document.addEventListener('keydown', e => {
@@ -2653,6 +3224,9 @@ function init() {
       handleClick({ clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 });
     }
   });
+
+  // Show path selection on load
+  showPathSelection();
 }
 
 init();
