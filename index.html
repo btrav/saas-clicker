@@ -132,7 +132,19 @@
     align-items: center;
     justify-content: flex-start;
     padding: 16px 12px;
-    gap: 16px;
+    gap: 12px;
+  }
+
+  #click-hero {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
   }
 
   #company-visual {
@@ -164,28 +176,30 @@
 
   #click-btn {
     width: 100%;
-    padding: 16px;
+    padding: 22px 16px;
     background: linear-gradient(135deg, var(--accent), #4f46e5);
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
     color: white;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.1s;
     font-family: var(--sans);
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 20px rgba(99,102,241,0.35);
   }
 
   #click-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
   #click-btn:active { transform: translateY(1px) scale(0.99); filter: brightness(0.95); }
 
   #click-btn-sub {
-    font-size: 11px;
-    opacity: 0.8;
-    margin-top: 2px;
-    font-weight: 400;
+    font-size: 13px;
+    opacity: 1;
+    margin-top: 4px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.9);
   }
 
   /* CLICK FLOATS */
@@ -1203,16 +1217,18 @@
     <!-- LEFT: CLICK + STATS -->
     <div class="panel tab-active" id="click-panel">
 
-      <div id="company-visual">
-        <span id="stage-emoji">🌱</span>
-        <div id="company-name">Your Startup</div>
-        <div id="stage-label">Idea Stage</div>
-      </div>
+      <div id="click-hero">
+        <div id="company-visual" style="background:none;border:none;padding:8px 0 4px;">
+          <span id="stage-emoji">🌱</span>
+          <div id="company-name">Your Startup</div>
+          <div id="stage-label">Idea Stage</div>
+        </div>
 
-      <button id="click-btn" onclick="handleClick(event)">
-        <div>📣 Acquire User</div>
-        <div id="click-btn-sub" class="click-btn-sub">+<span id="click-power-display">1</span> user per click</div>
-      </button>
+        <button id="click-btn" onclick="handleClick(event)">
+          <div>📣 Acquire User</div>
+          <div id="click-btn-sub" class="click-btn-sub">+<span id="click-power-display">1</span> user per click</div>
+        </button>
+      </div>
 
       <!-- Bootstrap: Consulting Gig button -->
       <button id="consulting-btn" onclick="doConsultingGig()">
@@ -1515,9 +1531,9 @@ function initGame(path) {
     // Funding rounds (VC only)
     fundingRound: -1,
     fundingLocked: false,
-    // Random events
-    lastEventTime: Date.now() + 30000,
-    nextEventInterval: 80000,
+    // Random events (activity-based)
+    lastEventUsers: 0,
+    eventUserThreshold: 300,
     // Ticks
     tick: 0,
     lastTick: Date.now(),
@@ -2512,10 +2528,12 @@ function gameTick() {
     checkAcquisitionTrigger();
   }
 
-  // -- Check random events --
-  if (now > G.lastEventTime + G.nextEventInterval) {
-    G.lastEventTime = now;
-    G.nextEventInterval = 60000 + Math.random() * 60000;
+  // -- Check random events (activity-based: fires after enough user growth) --
+  const usersSinceLastEvent = G.totalUsers - G.lastEventUsers;
+  if (usersSinceLastEvent >= G.eventUserThreshold) {
+    // Always advance the threshold so it scales with progress
+    G.lastEventUsers = G.totalUsers;
+    G.eventUserThreshold = Math.max(300, G.totalUsers * 0.15);
     if (!isModalOpen()) {
       triggerRandomEvent();
     }
