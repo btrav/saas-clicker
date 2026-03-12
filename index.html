@@ -925,6 +925,7 @@
 
     /* Notification bottom offset above tab bar */
     #notif-container { bottom: 66px; }
+    #footer-credit { display: none; }
 
     /* Term sheets stack on mobile */
     .term-sheets { grid-template-columns: 1fr; }
@@ -1409,7 +1410,7 @@
         <div class="path-card-name">VC-Backed</div>
         <div class="path-card-desc">Raise from investors, scale fast, and aim for an IPO. Trade equity for rocket fuel.</div>
         <div class="path-card-traits">
-          <div class="path-trait bad">✗ Start with $5k</div>
+          <div class="path-trait bad">✗ Start with $2k</div>
           <div class="path-trait good">✓ Funding rounds unlock cash</div>
           <div class="path-trait bad">✗ Dilute your equity</div>
           <div class="path-trait good">✓ Win via IPO</div>
@@ -1420,7 +1421,7 @@
         <div class="path-card-name">Bootstrapped</div>
         <div class="path-card-desc">Personal savings, consulting gigs, and relentless focus. Slower but you keep 100%.</div>
         <div class="path-card-traits">
-          <div class="path-trait good">✓ Start with $15k savings</div>
+          <div class="path-trait good">✓ Start with $10k savings</div>
           <div class="path-trait good">✓ Higher conversion (niche focus)</div>
           <div class="path-trait bad">✗ No investor funding</div>
           <div class="path-trait good">✓ Win via acquisition — keep everything</div>
@@ -1450,6 +1451,11 @@
 
 <!-- NOTIFICATIONS -->
 <div id="notif-container"></div>
+
+<!-- FOOTER -->
+<div id="footer-credit" style="position:fixed;bottom:4px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--text3);z-index:5;pointer-events:none;white-space:nowrap;">
+  made by <a href="https://github.com/btrav" target="_blank" rel="noopener" style="color:var(--text2);text-decoration:none;pointer-events:all;">btrav</a>
+</div>
 
 <script>
 // ============================================================
@@ -1482,12 +1488,12 @@ function initGame(path) {
     // Path
     path: path || 'vc',
     // Core resources
-    cash: isBS ? 15000 + prestigeData.bsCashBonus : 5000,
+    cash: isBS ? 10000 + prestigeData.bsCashBonus : 2000,
     totalUsers: 0,
     payingUsers: 0,
     // Rates
     convRate: isBS ? 0.03 : 0.02,
-    churnRate: isBS ? 0.025 : 0.03,
+    churnRate: isBS ? 0.04 : 0.05,
     clickPower: 1,
     autoRate: 0,
     // Revenue
@@ -1544,7 +1550,7 @@ const UPGRADES = [
     tag: 'tag-auto',
     tagLabel: 'Auto',
     desc: 'Happy users invite friends. +0.3 users/sec',
-    cost: 500,
+    cost: 1500,
     unlockCash: 0,
     onBuy: () => { G.autoRate += 0.3; },
     repeatable: false
@@ -1556,7 +1562,7 @@ const UPGRADES = [
     tag: 'tag-auto',
     tagLabel: 'Auto',
     desc: 'Organic search traffic. +1 user/sec',
-    cost: 2000,
+    cost: 5000,
     unlockUsers: 200,
     onBuy: () => { G.autoRate += 1; },
     repeatable: false
@@ -1568,7 +1574,7 @@ const UPGRADES = [
     tag: 'tag-auto',
     tagLabel: 'Auto',
     desc: 'Buy growth. +3 users/sec, +$500/mo burn',
-    cost: 8000,
+    cost: 18000,
     unlockUsers: 1000,
     onBuy: () => { G.autoRate += 3; G.burnRate += 500; },
     repeatable: false
@@ -1580,7 +1586,7 @@ const UPGRADES = [
     tag: 'tag-auto',
     tagLabel: 'Auto',
     desc: 'Product-led virality engine. +8 users/sec',
-    cost: 30000,
+    cost: 60000,
     unlockUsers: 5000,
     onBuy: () => { G.autoRate += 8; },
     repeatable: false
@@ -1592,7 +1598,7 @@ const UPGRADES = [
     tag: 'tag-auto',
     tagLabel: 'Auto',
     desc: 'Sponsored content at scale. +20 users/sec, +$2k/mo burn',
-    cost: 80000,
+    cost: 150000,
     unlockUsers: 15000,
     onBuy: () => { G.autoRate += 20; G.burnRate += 2000; },
     repeatable: false
@@ -1604,7 +1610,7 @@ const UPGRADES = [
     tag: 'tag-auto',
     tagLabel: 'Auto',
     desc: 'Blog, podcast, YouTube -- +50 users/sec',
-    cost: 200000,
+    cost: 350000,
     unlockUsers: 50000,
     onBuy: () => { G.autoRate += 50; },
     repeatable: false
@@ -1618,7 +1624,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Sharper messaging, more signups per mention. +4 click power',
-    cost: 300,
+    cost: 1000,
     unlockCash: 0,
     onBuy: () => { G.clickPower += 4; },
     repeatable: false
@@ -1630,7 +1636,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Pitch in front of 500 people. +15 click power',
-    cost: 1500,
+    cost: 4000,
     unlockUsers: 100,
     onBuy: () => { G.clickPower += 15; },
     repeatable: false
@@ -1642,7 +1648,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Optimize conversion on the signup page. +1% conversion rate',
-    cost: 2500,
+    cost: 7000,
     unlockUsers: 500,
     onBuy: () => { G.convRate += 0.01; },
     repeatable: false
@@ -1654,7 +1660,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Users "get it" faster. -0.5% churn/mo, +1% conversion',
-    cost: 5000,
+    cost: 15000,
     unlockUsers: 1000,
     onBuy: () => { G.churnRate = Math.max(0.005, G.churnRate - 0.005); G.convRate += 0.01; },
     repeatable: false
@@ -1666,7 +1672,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Viral spike! +50 click power for this run',
-    cost: 1000,
+    cost: 6000,
     unlockUsers: 300,
     onBuy: () => { G.clickPower += 50; },
     repeatable: false
@@ -1678,7 +1684,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Understand why users leave. -1% churn/mo',
-    cost: 12000,
+    cost: 28000,
     unlockPaying: 100,
     onBuy: () => { G.churnRate = Math.max(0.003, G.churnRate - 0.01); },
     repeatable: false
@@ -1690,7 +1696,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Lock users in yearly. -1.5% churn/mo',
-    cost: 20000,
+    cost: 45000,
     unlockPaying: 200,
     onBuy: () => { G.churnRate = Math.max(0.003, G.churnRate - 0.015); },
     repeatable: false
@@ -1702,7 +1708,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Catch unhappy users early. -1% churn/mo, +0.5% conversion',
-    cost: 8000,
+    cost: 18000,
     unlockPaying: 150,
     onBuy: () => { G.churnRate = Math.max(0.003, G.churnRate - 0.01); G.convRate += 0.005; },
     repeatable: false
@@ -1714,7 +1720,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Systematic user acquisition framework. +100 click power',
-    cost: 15000,
+    cost: 35000,
     unlockUsers: 3000,
     onBuy: () => { G.clickPower += 100; },
     repeatable: false
@@ -1726,7 +1732,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Advanced acquisition at scale. +500 click power',
-    cost: 100000,
+    cost: 200000,
     unlockUsers: 20000,
     onBuy: () => { G.clickPower += 500; },
     repeatable: false
@@ -1740,8 +1746,8 @@ const UPGRADES = [
     tag: 'tag-plan',
     tagLabel: 'Plan',
     desc: 'Enable your first paid tier. Users on Basic generate $29 ARPU.',
-    cost: 1000,
-    unlockUsers: 100,
+    cost: 3000,
+    unlockPaying: 50,
     onBuy: () => { G.plansUnlocked.basic = true; recalcARPU(); },
     repeatable: false
   },
@@ -1752,7 +1758,7 @@ const UPGRADES = [
     tag: 'tag-plan',
     tagLabel: 'Plan',
     desc: 'Power users pay more. 30% of paying users upgrade to Pro.',
-    cost: 8000,
+    cost: 22000,
     unlockPaying: 50,
     onBuy: () => {
       G.plansUnlocked.pro = true;
@@ -1768,7 +1774,7 @@ const UPGRADES = [
     tag: 'tag-plan',
     tagLabel: 'Plan',
     desc: 'Land big clients. 10% on Enterprise, 30% Pro, 60% Basic.',
-    cost: 50000,
+    cost: 90000,
     unlockPaying: 500,
     onBuy: () => {
       G.plansUnlocked.enterprise = true;
@@ -1787,7 +1793,7 @@ const UPGRADES = [
     tagLabel: 'Hire',
     desc: 'Speeds up feature development. +150% auto-rate, reduces churn 0.5%/mo.',
     monthlyCost: 12000,
-    cost: 12000,  // signing bonus / first month
+    cost: 20000,  // signing bonus / first month
     unlockCash: 15000,
     onBuy: () => {
       G.autoRate *= 2.5;
@@ -1806,7 +1812,7 @@ const UPGRADES = [
     tagLabel: 'Hire',
     desc: '+30% conversion rate, +2 click power per second effect.',
     monthlyCost: 8000,
-    cost: 8000,
+    cost: 15000,
     unlockCash: 10000,
     onBuy: () => {
       G.convRate *= 1.3;
@@ -1825,7 +1831,7 @@ const UPGRADES = [
     tagLabel: 'Hire',
     desc: 'Dramatically reduces churn. -2%/mo churn.',
     monthlyCost: 9000,
-    cost: 9000,
+    cost: 16000,
     unlockPaying: 100,
     onBuy: () => {
       G.churnRate = Math.max(0.003, G.churnRate - 0.02);
@@ -1843,7 +1849,7 @@ const UPGRADES = [
     tagLabel: 'Hire',
     desc: 'Drives Enterprise deals. +20% plan distribution to Enterprise.',
     monthlyCost: 15000,
-    cost: 15000,
+    cost: 28000,
     unlockPaying: 300,
     onBuy: () => {
       if (G.plansUnlocked.enterprise) {
@@ -1865,7 +1871,7 @@ const UPGRADES = [
     tagLabel: 'Hire',
     desc: 'ML-driven user behavior insights. +2% conversion, -1% churn.',
     monthlyCost: 14000,
-    cost: 14000,
+    cost: 26000,
     unlockPaying: 200,
     onBuy: () => {
       G.convRate += 0.02;
@@ -1884,7 +1890,7 @@ const UPGRADES = [
     tagLabel: 'Hire',
     desc: 'Infrastructure stability. Prevents outage events, +$800/mo infra savings.',
     monthlyCost: 13000,
-    cost: 13000,
+    cost: 22000,
     unlockCash: 50000,
     onBuy: () => {
       G.burnRate += 13000 - 800;
@@ -1901,7 +1907,7 @@ const UPGRADES = [
     tagLabel: 'Hire',
     desc: 'World-class technical leadership. +200% auto-rate, -1.5% churn.',
     monthlyCost: 25000,
-    cost: 25000,
+    cost: 45000,
     unlockPaying: 1000,
     onBuy: () => {
       G.autoRate *= 3;
@@ -1918,12 +1924,12 @@ const UPGRADES = [
     type: 'team',
     tag: 'tag-team',
     tagLabel: 'Hire',
-    desc: 'Brand + performance marketing at scale. +100 auto users/sec.',
+    desc: 'Brand + performance marketing at scale. +60 auto users/sec.',
     monthlyCost: 20000,
-    cost: 20000,
+    cost: 38000,
     unlockPaying: 500,
     onBuy: () => {
-      G.autoRate += 100;
+      G.autoRate += 60;
       G.burnRate += 20000;
       G.hiredTeam.lena = true;
     },
@@ -1939,7 +1945,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Handle scale. Required for >10k users. +$1k/mo burn',
-    cost: 3000,
+    cost: 8000,
     unlockUsers: 2000,
     onBuy: () => { G.burnRate += 1000; },
     repeatable: false
@@ -1951,7 +1957,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: '99.99% uptime SLA. -2% churn, +$5k/mo burn',
-    cost: 25000,
+    cost: 55000,
     unlockUsers: 20000,
     onBuy: () => { G.churnRate = Math.max(0.003, G.churnRate - 0.02); G.burnRate += 5000; },
     repeatable: false
@@ -1963,7 +1969,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Enterprise customers demand it. +15% Enterprise plan distribution.',
-    cost: 40000,
+    cost: 80000,
     unlockPaying: 400,
     onBuy: () => {
       if (G.plansUnlocked.enterprise) {
@@ -1984,7 +1990,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Customers prepay yearly at a discount. +20% conversion rate, -15% effective ARPU.',
-    cost: 500,
+    cost: 3000,
     unlockCash: 0,
     bootstrapOnly: true,
     onBuy: () => {
@@ -2001,7 +2007,7 @@ const UPGRADES = [
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
     desc: 'Double down on one tight niche. +25% conversion, -10% churn. Caps total users at 50,000.',
-    cost: 1000,
+    cost: 5000,
     unlockCash: 0,
     bootstrapOnly: true,
     tooltip: 'Niche Focus caps your total users at 50,000. Within that ceiling, you convert and retain at much higher rates.',
@@ -2507,10 +2513,12 @@ function gameTick() {
   }
 
   // -- Check random events --
-  if (now > G.lastEventTime + G.nextEventInterval && !isModalOpen()) {
+  if (now > G.lastEventTime + G.nextEventInterval) {
     G.lastEventTime = now;
     G.nextEventInterval = 60000 + Math.random() * 60000;
-    triggerRandomEvent();
+    if (!isModalOpen()) {
+      triggerRandomEvent();
+    }
   }
 
   // -- Stage update --
@@ -2789,7 +2797,7 @@ function choosePath(path) {
   document.getElementById('path-overlay').classList.add('hidden');
   resetForPrestige(path);
   logEvent(path === 'bootstrap'
-    ? 'Bootstrapped path chosen. $15k in savings. Build something real.'
+    ? 'Bootstrapped path chosen. $10k in savings. Build something real.'
     : 'VC-backed path chosen. Time to raise and scale.');
 }
 
@@ -3130,25 +3138,34 @@ function render() {
       document.getElementById('milestone-right').textContent = fmt(ACQ_MRR) + ' MRR';
     }
   } else {
-    const nextRoundIdx = G.fundingRound + 1;
-    if (nextRoundIdx < FUNDING_ROUNDS.length) {
-      const nextRound = FUNDING_ROUNDS[nextRoundIdx];
-      document.getElementById('milestone-title').textContent = 'Next: ' + nextRound.label;
-      let prog = 0;
-      let rightLabel = fmtNum(nextRound.triggerUsers) + ' users';
-      if (nextRound.triggerMRR > 0 && G.totalUsers >= nextRound.triggerUsers) {
-        prog = Math.min(1, G.mrr / nextRound.triggerMRR);
-        rightLabel = fmt(nextRound.triggerMRR) + ' MRR';
-        document.getElementById('milestone-left').textContent = fmt(G.mrr);
-      } else {
-        prog = Math.min(1, G.totalUsers / nextRound.triggerUsers);
-        document.getElementById('milestone-left').textContent = fmtNum(Math.floor(G.totalUsers));
-      }
+    // Pre-milestone: show Basic Plan unlock hint until the player has 50 paying users
+    if (!G.plansUnlocked.basic && G.payingUsers < 50) {
+      document.getElementById('milestone-title').textContent = 'Next: Basic Plan unlock';
+      const prog = Math.min(1, G.payingUsers / 50);
       document.getElementById('milestone-bar').style.width = (prog * 100) + '%';
-      document.getElementById('milestone-right').textContent = rightLabel;
+      document.getElementById('milestone-left').textContent = fmtNum(Math.floor(G.payingUsers)) + ' paying';
+      document.getElementById('milestone-right').textContent = '50 paying users';
     } else {
-      document.getElementById('milestone-title').textContent = '🚀 IPO Achieved!';
-      document.getElementById('milestone-bar').style.width = '100%';
+      const nextRoundIdx = G.fundingRound + 1;
+      if (nextRoundIdx < FUNDING_ROUNDS.length) {
+        const nextRound = FUNDING_ROUNDS[nextRoundIdx];
+        document.getElementById('milestone-title').textContent = 'Next: ' + nextRound.label;
+        let prog = 0;
+        let rightLabel = fmtNum(nextRound.triggerUsers) + ' users';
+        if (nextRound.triggerMRR > 0 && G.totalUsers >= nextRound.triggerUsers) {
+          prog = Math.min(1, G.mrr / nextRound.triggerMRR);
+          rightLabel = fmt(nextRound.triggerMRR) + ' MRR';
+          document.getElementById('milestone-left').textContent = fmt(G.mrr);
+        } else {
+          prog = Math.min(1, G.totalUsers / nextRound.triggerUsers);
+          document.getElementById('milestone-left').textContent = fmtNum(Math.floor(G.totalUsers));
+        }
+        document.getElementById('milestone-bar').style.width = (prog * 100) + '%';
+        document.getElementById('milestone-right').textContent = rightLabel;
+      } else {
+        document.getElementById('milestone-title').textContent = '🚀 IPO Achieved!';
+        document.getElementById('milestone-bar').style.width = '100%';
+      }
     }
   }
 
