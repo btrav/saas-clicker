@@ -1488,7 +1488,7 @@ function initGame(path) {
     // Path
     path: path || 'vc',
     // Core resources
-    cash: isBS ? 10000 + prestigeData.bsCashBonus : 2000,
+    cash: isBS ? 10000 + prestigeData.bsCashBonus : 4000,
     totalUsers: 0,
     payingUsers: 0,
     // Rates
@@ -1746,7 +1746,7 @@ const UPGRADES = [
     tag: 'tag-plan',
     tagLabel: 'Plan',
     desc: 'Enable your first paid tier. Users on Basic generate $29 ARPU.',
-    cost: 3000,
+    cost: 2000,
     unlockUsers: 150,
     onBuy: () => { G.plansUnlocked.basic = true; recalcARPU(); },
     repeatable: false
