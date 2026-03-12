@@ -1747,7 +1747,7 @@ const UPGRADES = [
     tagLabel: 'Plan',
     desc: 'Enable your first paid tier. Users on Basic generate $29 ARPU.',
     cost: 3000,
-    unlockPaying: 50,
+    unlockUsers: 150,
     onBuy: () => { G.plansUnlocked.basic = true; recalcARPU(); },
     repeatable: false
   },
@@ -3138,13 +3138,13 @@ function render() {
       document.getElementById('milestone-right').textContent = fmt(ACQ_MRR) + ' MRR';
     }
   } else {
-    // Pre-milestone: show Basic Plan unlock hint until the player has 50 paying users
-    if (!G.plansUnlocked.basic && G.payingUsers < 50) {
+    // Pre-milestone: show Basic Plan unlock hint until the player has 150 total users
+    if (!G.plansUnlocked.basic && G.totalUsers < 150) {
       document.getElementById('milestone-title').textContent = 'Next: Basic Plan unlock';
-      const prog = Math.min(1, G.payingUsers / 50);
+      const prog = Math.min(1, G.totalUsers / 150);
       document.getElementById('milestone-bar').style.width = (prog * 100) + '%';
-      document.getElementById('milestone-left').textContent = fmtNum(Math.floor(G.payingUsers)) + ' paying';
-      document.getElementById('milestone-right').textContent = '50 paying users';
+      document.getElementById('milestone-left').textContent = fmtNum(Math.floor(G.totalUsers)) + ' users';
+      document.getElementById('milestone-right').textContent = '150 users';
     } else {
       const nextRoundIdx = G.fundingRound + 1;
       if (nextRoundIdx < FUNDING_ROUNDS.length) {
