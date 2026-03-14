@@ -1586,7 +1586,6 @@ function initGame() {
     consultingDistraction: false,
     acquisitionTriggered: false,
     acquisitionMultiple: 0,      // the X in X*ARR offer
-    nicheFocusCap: false         // whether Niche Focus upgrade is active (50k user cap)
   };
 }
 
@@ -1874,7 +1873,7 @@ const UPGRADES = [
     type: 'upgrade',
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
-    desc: 'Burn it down, start fresh. New name, new vibe, same codebase.',
+    desc: 'Burn it down, start fresh. New name, new vibe, same codebase. Cost doubles each time.',
     cost: 3000,
     unlockUsers: 50,
     onBuy: () => {
@@ -1883,7 +1882,9 @@ const UPGRADES = [
       G.companyName = c.name; G.companyEmoji = c.emoji; G.companyDesc = c.desc;
       logEvent(`Pivoted! Now operating as ${c.name}.`);
       notify(`Rebranded to ${c.name}. Fresh start.`, 'success');
-      // Allow re-purchase
+      // Double the cost for next pivot, then allow re-purchase
+      const upg = UPGRADES.find(u => u.id === 'pivot_rebrand');
+      upg.cost *= 2;
       delete G.purchased['pivot_rebrand'];
     },
     repeatable: true
@@ -2207,7 +2208,7 @@ const UPGRADES = [
     type: 'upgrade',
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
-    desc: 'Handle scale. Required for >10k users. +$1k/mo burn',
+    desc: 'Handle scale. Required to grow past 10,000 users. +$1k/mo burn',
     cost: 8000,
     unlockUsers: 2000,
     onBuy: () => { G.burnRate += 1000; },
@@ -2264,25 +2265,6 @@ const UPGRADES = [
     },
     repeatable: false
   },
-  {
-    id: 'bs_niche_focus',
-    name: 'Niche Focus',
-    type: 'upgrade',
-    tag: 'tag-upgrade',
-    tagLabel: 'Upgrade',
-    desc: 'Double down on one tight niche. +25% conversion, -10% churn. Caps total users at 50,000.',
-    cost: 5000,
-    unlockCash: 0,
-    bootstrapOnly: true,
-    tooltip: 'Niche Focus caps your total users at 50,000. Within that ceiling, you convert and retain at much higher rates.',
-    onBuy: () => {
-      G.convRate *= 1.25;
-      G.churnRate = Math.max(0.005, G.churnRate * 0.90);
-      G.nicheFocusCap = true;
-    },
-    repeatable: false
-  },
-
   // ---- FINANCING ----
   {
     id: 'borrow_mom',
@@ -2854,9 +2836,10 @@ function gameTick() {
     G.totalUsers += G.autoRate * autoMult * dt;
   }
 
-  // -- Bootstrap niche focus cap --
-  if (G.nicheFocusCap && G.totalUsers > 50000) {
-    G.totalUsers = 50000;
+  // -- Cloud infrastructure cap: can't grow past 10k without it --
+  if (!G.purchased['cloud_basic'] && G.totalUsers > 10000) {
+    G.totalUsers = 10000;
+    G.payingUsers = Math.min(G.payingUsers, 10000);
   }
 
   // -- Paying user conversion --
@@ -2927,9 +2910,9 @@ function gameTick() {
     checkAcquisitionTrigger(); // acquisition only available while equity-free
   }
 
-  // -- Check random events (MRR milestone-based) --
-  if (G.mrr > 0 && G.mrr >= G.nextEventMRR && !isModalOpen()) {
-    G.nextEventMRR = G.mrr * 5;
+  // -- Check random events (MRR milestone-based, only after 5k users) --
+  if (G.totalUsers >= 5000 && G.mrr > 0 && G.mrr >= G.nextEventMRR && !isModalOpen()) {
+    G.nextEventMRR = G.mrr * 8;
     triggerRandomEvent();
   }
 
