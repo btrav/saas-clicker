@@ -1645,9 +1645,8 @@ const UPGRADES = [
         notify(`Catastrophic. You got reported as spam. -${lost} users abandoned ship.`, 'danger');
         logEvent(`Sketchy mailing list disaster: -${lost} users from reputation damage.`);
       }
-      delete G.purchased['sketchy_mailing'];
     },
-    repeatable: true
+    repeatable: false
   },
   {
     id: 'contact_influencer',
@@ -1685,9 +1684,8 @@ const UPGRADES = [
         notify(`They dunked on you publicly. -${lost} users rage-quit.`, 'danger');
         logEvent(`Influencer dragged ${G.companyName} online: -${lost} users.`);
       }
-      delete G.purchased['contact_influencer'];
     },
-    repeatable: true
+    repeatable: false
   },
   {
     id: 'podcast_sponsor',
@@ -1712,11 +1710,11 @@ const UPGRADES = [
           logEvent(`Podcast sponsorship paid off: +${userGain} users, +0.5/sec.`);
         }
       });
-      notify('Episode recording complete — airs in 30 seconds.', 'info');
+      addEffect('podcast_hype', '🎙️ Podcast Hype', 15, () => { G.clickPower += 30; }, () => { G.clickPower -= 30; });
+      notify('Episode recording complete — airs in 30 seconds. +30 click power for 15s!', 'info');
       logEvent('Podcast sponsorship purchased. Waiting for episode to drop.');
-      delete G.purchased['podcast_sponsor'];
     },
-    repeatable: true
+    repeatable: false
   },
   {
     id: 'referral',
@@ -2307,9 +2305,8 @@ const UPGRADES = [
         notify('Didn\'t place. The judges went with the NFT ticketing app. Weekend: gone.', 'warn');
         logEvent('Hackathon attempt failed. Lost $100 entry fee and a weekend.');
       }
-      delete G.purchased['blockchain_hackathon'];
     },
-    repeatable: true
+    repeatable: false
   },
   {
     id: 'max_credit_card',
@@ -2348,9 +2345,8 @@ const UPGRADES = [
         notify('The judges went with the dog-walking app. Better luck next time.', 'info');
         logEvent('Pitch competition: no prize. Dignity: debatable.');
       }
-      delete G.purchased['pitch_competition'];
     },
-    repeatable: true
+    repeatable: false
   },
   {
     id: 'revenue_financing',
@@ -2383,9 +2379,8 @@ const UPGRADES = [
       G.cash += earned;
       notify(`Merch table cleaned out! Earned ${fmt(earned)} in swag sales.`, 'success');
       logEvent(`Conference merch sales: +${fmt(earned)}.`);
-      delete G.purchased['conference_merch'];
     },
-    repeatable: true
+    repeatable: false
   },
 ];
 
