@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upstart Startup</title>
+<title>SaaS Clicker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -59,10 +59,6 @@
     font-weight: 700;
     color: var(--accent2);
     letter-spacing: -0.3px;
-  }
-
-  #company-stage {
-    font-size: 18px;
   }
 
   #header-stats {
@@ -166,6 +162,13 @@
     font-size: 14px;
     font-weight: 600;
     color: var(--accent2);
+  }
+
+  #company-tagline {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+    font-style: italic;
   }
 
   #stage-label {
@@ -369,6 +372,33 @@
   .tag-team { background: #2a1e3a; color: var(--purple); }
   .tag-plan { background: #1e3a2a; color: var(--green); }
   .tag-upgrade { background: #3a2a1e; color: var(--orange); }
+  .tag-risky { background: #3a1e1e; color: var(--red); }
+  .tag-finance { background: #1e2a1e; color: #86efac; }
+
+  .dignity-cost {
+    font-size: 10px;
+    color: var(--yellow);
+    opacity: 0.8;
+    margin-top: 2px;
+  }
+
+  /* COUNTDOWN TIMERS */
+  .countdown-item {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  .countdown-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    color: var(--text2);
+  }
+  .countdown-time { color: var(--yellow); font-family: var(--mono); font-size: 10px; }
+  .countdown-bar-bg { background: var(--bg2); border-radius: 3px; height: 4px; overflow: hidden; }
+  .countdown-bar-fill { background: var(--yellow); height: 4px; border-radius: 3px; transition: width 0.1s linear; }
 
   /* HIRE CARD (for team members with monthly cost) */
   .hire-card { background: var(--bg2); }
@@ -814,7 +844,10 @@
     padding: 6px 8px;
     font-size: 11px;
     color: var(--text2);
-    white-space: nowrap;
+    white-space: normal;
+    max-width: 320px;
+    text-align: center;
+    cursor: help;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.15s;
@@ -1180,8 +1213,7 @@
 
   <!-- HEADER -->
   <div id="header">
-    <span id="company-stage">🌱</span>
-    <h1>Upstart Startup</h1>
+    <h1>SaaS Clicker</h1>
     <span id="company-name-header" style="color:var(--text2);font-size:12px;"></span>
     <span id="path-indicator-badge" class="path-indicator" style="display:none;"></span>
     <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
@@ -1221,6 +1253,7 @@
         <div id="company-visual" style="background:none;border:none;padding:8px 0 4px;">
           <span id="stage-emoji">🌱</span>
           <div id="company-name">Your Startup</div>
+          <div id="company-tagline"></div>
           <div id="stage-label">Idea Stage</div>
         </div>
 
@@ -1251,20 +1284,20 @@
       <!-- Core stats -->
       <div class="stats-block">
         <div class="stats-block-title">Users</div>
-        <div class="stat-row"><span class="stat-key">Total Users</span><span class="stat-val" id="s-total-users">0</span></div>
-        <div class="stat-row"><span class="stat-key">Paying</span><span class="stat-val green" id="s-paying">0</span></div>
-        <div class="stat-row"><span class="stat-key">Conversion</span><span class="stat-val" id="s-conv">2.0%</span></div>
-        <div class="stat-row"><span class="stat-key">Churn Rate</span><span class="stat-val red" id="s-churn">3.0%/mo</span></div>
-        <div class="stat-row"><span class="stat-key">Auto Users/s</span><span class="stat-val cyan" id="s-auto" style="color:var(--cyan)">0</span></div>
+        <div class="stat-row" data-tip="Everyone who has signed up — free or paid"><span class="stat-key">Total Users</span><span class="stat-val" id="s-total-users">0</span></div>
+        <div class="stat-row" data-tip="Users on a paid plan (Basic, Pro, or Enterprise)"><span class="stat-key">Paying</span><span class="stat-val green" id="s-paying">0</span></div>
+        <div class="stat-row" data-tip="Share of total users who convert to a paid plan. Upgrades and hires can raise this."><span class="stat-key">Conversion</span><span class="stat-val" id="s-conv">2.0%</span></div>
+        <div class="stat-row" data-tip="Share of paying users who cancel each month. Lower is better — invest in churn reduction upgrades."><span class="stat-key">Churn Rate</span><span class="stat-val red" id="s-churn">3.0%/mo</span></div>
+        <div class="stat-row" data-tip="Users acquired automatically each second from referrals, SEO, ads, and other channels"><span class="stat-key">Auto Users/s</span><span class="stat-val cyan" id="s-auto" style="color:var(--cyan)">0</span></div>
       </div>
 
       <div class="stats-block">
         <div class="stats-block-title">Revenue</div>
-        <div class="stat-row"><span class="stat-key">MRR</span><span class="stat-val green" id="s-mrr">$0</span></div>
-        <div class="stat-row"><span class="stat-key">ARR</span><span class="stat-val green" id="s-arr">$0</span></div>
-        <div class="stat-row"><span class="stat-key">ARPU</span><span class="stat-val" id="s-arpu">$0</span></div>
-        <div class="stat-row"><span class="stat-key">Burn Rate</span><span class="stat-val red" id="s-burn">$0/mo</span></div>
-        <div class="stat-row">
+        <div class="stat-row" data-tip="Monthly Recurring Revenue — total subscription income this month"><span class="stat-key">MRR</span><span class="stat-val green" id="s-mrr">$0</span></div>
+        <div class="stat-row" data-tip="Annual Recurring Revenue — MRR × 12. Used to value the company in acquisition and IPO offers."><span class="stat-key">ARR</span><span class="stat-val green" id="s-arr">$0</span></div>
+        <div class="stat-row" data-tip="Average Revenue Per User — the blended monthly value of a paying customer across all plan tiers"><span class="stat-key">ARPU</span><span class="stat-val" id="s-arpu">$0</span></div>
+        <div class="stat-row" data-tip="Monthly cash expenses — salaries, infrastructure, and ads. MRR must exceed this to be profitable."><span class="stat-key">Burn Rate</span><span class="stat-val red" id="s-burn">$0/mo</span></div>
+        <div class="stat-row" data-tip="How many months of cash you have left at the current net burn rate">
           <span class="stat-key">Runway</span>
           <span class="stat-val yellow" id="s-runway">--</span>
         </div>
@@ -1279,6 +1312,12 @@
       <div class="stats-block" id="effects-block" style="display:none;">
         <div class="stats-block-title">Active Effects</div>
         <div id="effects-list"></div>
+      </div>
+
+      <!-- Countdown Timers -->
+      <div class="stats-block" id="countdown-block" style="display:none;">
+        <div class="stats-block-title">In Progress</div>
+        <div id="countdown-list" style="display:flex;flex-direction:column;gap:6px;"></div>
       </div>
 
       <!-- Team -->
@@ -1311,28 +1350,28 @@
       <!-- Bootstrap path: Profitability block -->
       <div class="stats-block" id="bootstrap-profit-block" style="display:none;">
         <div class="stats-block-title">Profitability</div>
-        <div class="stat-row"><span class="stat-key">Monthly Profit</span><span class="stat-val" id="s-monthly-profit">$0</span></div>
-        <div class="stat-row"><span class="stat-key">Cash Flow</span><span class="stat-val" id="s-cashflow">Burning</span></div>
-        <div class="stat-row" id="s-months-to-profit-row"><span class="stat-key">Months to Profit</span><span class="stat-val yellow" id="s-months-to-profit">--</span></div>
-        <div class="stat-row"><span class="stat-key">Equity Sold</span><span class="stat-val green">0% — fully yours</span></div>
+        <div class="stat-row" data-tip="MRR minus burn rate — positive means the business is self-sustaining"><span class="stat-key">Monthly Profit</span><span class="stat-val" id="s-monthly-profit">$0</span></div>
+        <div class="stat-row" data-tip="Profitable once MRR exceeds burn rate — unlocks team hires"><span class="stat-key">Cash Flow</span><span class="stat-val" id="s-cashflow">Burning</span></div>
+        <div class="stat-row" id="s-months-to-profit-row" data-tip="Estimated months until MRR covers your monthly costs at current growth"><span class="stat-key">Months to Profit</span><span class="stat-val yellow" id="s-months-to-profit">--</span></div>
+        <div class="stat-row" data-tip="You've taken no investor money — every dollar of a sale goes to you"><span class="stat-key">Equity Sold</span><span class="stat-val green">0% — fully yours</span></div>
       </div>
 
       <div class="stats-block">
         <div class="stats-block-title">Prestige Bonuses</div>
-        <div class="stat-row" id="vc-ipos-row"><span class="stat-key">IPOs Completed</span><span class="stat-val yellow" id="s-ipos">0</span></div>
-        <div class="stat-row" id="bs-wins-row" style="display:none;"><span class="stat-key">Bootstrap Exits</span><span class="stat-val" style="color:var(--green)" id="s-bswins">0</span></div>
-        <div class="stat-row"><span class="stat-key">Click Multiplier</span><span class="stat-val" id="s-click-mult">1x</span></div>
-        <div class="stat-row"><span class="stat-key">Revenue Multiplier</span><span class="stat-val" id="s-rev-mult">1x</span></div>
-        <div class="stat-row"><span class="stat-key">Conv. Bonus</span><span class="stat-val" id="s-conv-bonus">+0%</span></div>
+        <div class="stat-row" id="vc-ipos-row" data-tip="Complete 3 IPOs to reach the Hall of Fame — each one boosts your next company"><span class="stat-key">IPOs Completed</span><span class="stat-val yellow" id="s-ipos">0</span></div>
+        <div class="stat-row" id="bs-wins-row" style="display:none;" data-tip="Acquisitions completed with 0% equity given away — boosts starting cash and conversion on the next run"><span class="stat-key">Bootstrap Exits</span><span class="stat-val" style="color:var(--green)" id="s-bswins">0</span></div>
+        <div class="stat-row" data-tip="Multiplier applied to every manual click — stacks across IPO runs"><span class="stat-key">Click Multiplier</span><span class="stat-val" id="s-click-mult">1x</span></div>
+        <div class="stat-row" data-tip="Applied to all MRR — earned by completing IPO runs"><span class="stat-key">Revenue Multiplier</span><span class="stat-val" id="s-rev-mult">1x</span></div>
+        <div class="stat-row" data-tip="Flat bonus added to your starting conversion rate on every new company"><span class="stat-key">Conv. Bonus</span><span class="stat-val" id="s-conv-bonus">+0%</span></div>
       </div>
 
       <!-- Plan distribution -->
       <div class="stats-block">
         <div class="stats-block-title">Plan Distribution</div>
-        <div class="stat-row"><span class="stat-key">Free</span><span class="stat-val" id="p-free">0</span></div>
-        <div class="stat-row"><span class="stat-key">Basic ($29)</span><span class="stat-val" id="p-basic">0</span></div>
-        <div class="stat-row"><span class="stat-key">Pro ($99)</span><span class="stat-val" id="p-pro">0</span></div>
-        <div class="stat-row"><span class="stat-key">Enterprise ($500)</span><span class="stat-val" id="p-ent">0</span></div>
+        <div class="stat-row" data-tip="Users who signed up but haven't converted to a paid plan yet"><span class="stat-key">Free</span><span class="stat-val" id="p-free">0</span></div>
+        <div class="stat-row" data-tip="Your entry-level tier — $29/mo. Unlocked from the start."><span class="stat-key">Basic ($29)</span><span class="stat-val" id="p-basic">0</span></div>
+        <div class="stat-row" data-tip="Power users paying more — unlock the Pro Plan upgrade to add this tier"><span class="stat-key">Pro ($99)</span><span class="stat-val" id="p-pro">0</span></div>
+        <div class="stat-row" data-tip="High-value enterprise customers — unlock the Enterprise upgrade to add this tier"><span class="stat-key">Enterprise ($500)</span><span class="stat-val" id="p-ent">0</span></div>
       </div>
 
       <!-- Event log -->
@@ -1378,6 +1417,9 @@
     <div class="funding-title" id="fr-title">Investors are interested!</div>
     <div class="funding-desc" id="fr-desc"></div>
     <div class="term-sheets" id="fr-terms"></div>
+    <div style="text-align:center;margin-top:12px;">
+      <button class="btn" id="fr-pass-btn" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:12px;" onclick="">Pass — Stay Equity-Free</button>
+    </div>
   </div>
 </div>
 
@@ -1418,32 +1460,9 @@
 <!-- PATH SELECTION -->
 <div id="path-overlay">
   <div class="path-modal">
-    <h2>Choose Your Path</h2>
-    <p>How do you want to build your company? This shapes everything.</p>
-    <div class="path-choices">
-      <div class="path-card" onclick="choosePath('vc')">
-        <div class="path-card-icon">🏦</div>
-        <div class="path-card-name">VC-Backed</div>
-        <div class="path-card-desc">Raise from investors, scale fast, and aim for an IPO. Trade equity for rocket fuel.</div>
-        <div class="path-card-traits">
-          <div class="path-trait bad">✗ Start with $2k</div>
-          <div class="path-trait good">✓ Funding rounds unlock cash</div>
-          <div class="path-trait bad">✗ Dilute your equity</div>
-          <div class="path-trait good">✓ Win via IPO</div>
-        </div>
-      </div>
-      <div class="path-card bootstrap" onclick="choosePath('bootstrap')">
-        <div class="path-card-icon">🥾</div>
-        <div class="path-card-name">Bootstrapped</div>
-        <div class="path-card-desc">Personal savings, consulting gigs, and relentless focus. Slower but you keep 100%.</div>
-        <div class="path-card-traits">
-          <div class="path-trait good">✓ Start with $10k savings</div>
-          <div class="path-trait good">✓ Higher conversion (niche focus)</div>
-          <div class="path-trait bad">✗ No investor funding</div>
-          <div class="path-trait good">✓ Win via acquisition — keep everything</div>
-        </div>
-      </div>
-    </div>
+    <h2>🚀 Build Your Startup</h2>
+    <p style="color:var(--text2);margin-bottom:20px;">You start with a Basic plan and $5k in savings. When investors come calling, you can take their money — or pass and keep 100% equity. Your call, every time.</p>
+    <button class="btn btn-primary w-full" onclick="startGame()" style="font-size:15px;padding:14px;">Start Company</button>
   </div>
 </div>
 
@@ -1477,10 +1496,25 @@
 // ============================================================
 //  GAME STATE
 // ============================================================
-const COMPANY_NAMES = [
-  'Synapse','Verdant','Nexora','Helion','Stratum','Aerion',
-  'Cognify','Vortex','Lumina','Cascade','Pivotal','Zenith',
-  'Apexio','Fluxware','Orbis','Tessera','Veloura','Cloudrift'
+const COMPANIES = [
+  { name: 'Flack',         emoji: '💬', desc: 'Where teams go to procrastinate, together' },
+  { name: 'Noshun',        emoji: '📝', desc: 'The all-in-one tool for organizing your other tools' },
+  { name: 'Zoombomb',      emoji: '📹', desc: '"You\'re on mute" — delivered as a service' },
+  { name: 'Stripclub',     emoji: '💳', desc: 'We take a small cut. Of everything. Forever.' },
+  { name: 'Intercram',     emoji: '🤖', desc: 'Chatbots that make humans feel worse about themselves' },
+  { name: 'Mailchump',     emoji: '📧', desc: 'Email marketing with artisanal unsubscribes' },
+  { name: 'JirAAAA',       emoji: '🎫', desc: 'Sprint planning for teams allergic to sprinting' },
+  { name: 'Figmeh',        emoji: '🎨', desc: 'Design by committee. Ship by Q5.' },
+  { name: 'GitHubris',     emoji: '🐙', desc: 'Code review culture as a billable product' },
+  { name: 'Snowjob',       emoji: '❄️', desc: 'A cloud data warehouse you\'ll never fully understand' },
+  { name: 'ZenDesk Jockey',emoji: '🎧', desc: 'Closing tickets faster than feelings' },
+  { name: 'Webflop',       emoji: '🕸️', desc: 'No-code. Also no launch.' },
+  { name: 'Cluck-Up',      emoji: '✅', desc: 'A productivity app for managing your productivity apps' },
+  { name: 'Moanday',       emoji: '📅', desc: 'Work OS. Meetings OS. Existential dread OS.' },
+  { name: 'Asinine',       emoji: '🏷️', desc: 'Tasks for people who love making lists of lists' },
+  { name: 'AirBnTable',    emoji: '📊', desc: 'A spreadsheet for people who fear spreadsheets' },
+  { name: 'Workaday',      emoji: '👔', desc: 'HR software that makes HR feel almost human' },
+  { name: 'Linearly',      emoji: '📐', desc: 'Issue tracking for teams with strong opinions about issue tracking' },
 ];
 
 const STAGE_EMOJIS = ['🌱','🌿','🏗️','🏢','🚀','🦄'];
@@ -1498,18 +1532,17 @@ let prestigeData = {
 
 let G = {}; // game state
 
-function initGame(path) {
-  const isBS = path === 'bootstrap';
+function initGame() {
   G = {
-    // Path
-    path: path || 'vc',
+    // Path — starts as bootstrap; switches to 'vc' when first funding is accepted
+    path: 'bootstrap',
     // Core resources
-    cash: isBS ? 10000 + prestigeData.bsCashBonus : 4000,
+    cash: 5000 + prestigeData.bsCashBonus,
     totalUsers: 0,
     payingUsers: 0,
     // Rates
-    convRate: isBS ? 0.03 : 0.02,
-    churnRate: isBS ? 0.04 : 0.05,
+    convRate: 0.025,
+    churnRate: 0.10,
     clickPower: 1,
     autoRate: 0,
     // Revenue
@@ -1518,8 +1551,8 @@ function initGame(path) {
     burnRate: 0,
     totalRaised: 0,
     investorEquity: 0,
-    // Plans unlocked
-    plansUnlocked: { free: true, basic: false, pro: false, enterprise: false },
+    // Plans unlocked — Basic is available from day one
+    plansUnlocked: { free: true, basic: true, pro: false, enterprise: false },
     // Plan distribution (of paying users)
     planDist: { basic: 1, pro: 0, enterprise: 0 },
     // Team
@@ -1531,14 +1564,18 @@ function initGame(path) {
     // Funding rounds (VC only)
     fundingRound: -1,
     fundingLocked: false,
-    // Random events (activity-based)
-    lastEventUsers: 0,
-    eventUserThreshold: 300,
+    // Random events (MRR milestone-based)
+    nextEventMRR: 500,
+    lastPayingFloor: 0,
+    // Daily cash payout
+    nextDayIn: 2,
+    // Active countdown timers
+    activeCountdowns: [],
     // Ticks
     tick: 0,
     lastTick: Date.now(),
     // Company
-    companyName: pickRandom(COMPANY_NAMES),
+    ...(() => { const c = pickRandom(COMPANIES); return { companyName: c.name, companyEmoji: c.emoji, companyDesc: c.desc }; })(),
     stage: 0,
     // Game state
     gameOver: false,
@@ -1559,6 +1596,129 @@ function initGame(path) {
 
 const UPGRADES = [
   // ---- AUTO-CLICKERS ----
+  {
+    id: 'friends_family',
+    name: 'Friends & Family',
+    type: 'auto',
+    tag: 'tag-auto',
+    tagLabel: 'Auto',
+    desc: 'Recruit your network for early users. +20 users, 5 of them paying.',
+    cost: 0,
+    unlockCash: 0,
+    onBuy: () => {
+      G.totalUsers += 20; G.payingUsers += 5;
+      G.cash += 5 * G.arpu * prestigeData.revMult;
+      G.lastPayingFloor = Math.round(G.payingUsers);
+    },
+    repeatable: false
+  },
+  {
+    id: 'sketchy_mailing',
+    name: 'Sketchy Mailing List',
+    type: 'auto',
+    tag: 'tag-risky',
+    tagLabel: 'Risky',
+    desc: 'Buy a "totally legit" email list. High upside, high risk.',
+    cost: 500,
+    unlockCash: 500,
+    onBuy: () => {
+      const roll = Math.random();
+      if (roll < 0.5) {
+        // Good outcome: +40-120 users
+        const gained = Math.floor(40 + Math.random() * 80);
+        G.totalUsers += gained;
+        notify(`The list delivered! +${gained} new users from the mailing blast.`, 'success');
+        logEvent(`Sketchy mailing list paid off: +${gained} users.`);
+      } else if (roll < 0.8) {
+        // Meh: small gain but reputation hit
+        const gained = Math.floor(5 + Math.random() * 15);
+        const lost = Math.floor(G.totalUsers * 0.05);
+        G.totalUsers = Math.max(0, G.totalUsers - lost + gained);
+        G.payingUsers = Math.max(0, G.payingUsers * 0.95);
+        notify(`Spam complaints rolled in. +${gained} users but lost ${lost} to churn spike.`, 'warn');
+        logEvent(`Sketchy mailing list backfired: +${gained} but -${lost} from reputation hit.`);
+      } else {
+        // Bad: reputation damage, lose 15-25% of users
+        const pct = 0.15 + Math.random() * 0.10;
+        const lost = Math.floor(G.totalUsers * pct);
+        G.totalUsers = Math.max(0, G.totalUsers - lost);
+        G.payingUsers = Math.max(0, G.payingUsers * (1 - pct));
+        notify(`Catastrophic. You got reported as spam. -${lost} users abandoned ship.`, 'danger');
+        logEvent(`Sketchy mailing list disaster: -${lost} users from reputation damage.`);
+      }
+      delete G.purchased['sketchy_mailing'];
+    },
+    repeatable: true
+  },
+  {
+    id: 'contact_influencer',
+    name: 'Contact Influencer',
+    type: 'auto',
+    tag: 'tag-risky',
+    tagLabel: 'Risky',
+    desc: 'DM a tech influencer. They might love it. Or dunk on it publicly.',
+    cost: 1000,
+    unlockCash: 1000,
+    onBuy: () => {
+      const roll = Math.random();
+      if (roll < 0.35) {
+        // Big win: viral moment
+        const gained = Math.floor(G.totalUsers * (0.3 + Math.random() * 0.4));
+        G.totalUsers += gained;
+        notify(`They loved it! Viral moment — +${gained} new users flooding in.`, 'success');
+        logEvent(`Influencer shoutout went viral: +${gained} users.`);
+      } else if (roll < 0.65) {
+        // Modest win
+        const gained = Math.floor(20 + Math.random() * 30);
+        G.totalUsers += gained;
+        notify(`They posted about you. Decent pickup — +${gained} users.`, 'success');
+        logEvent(`Influencer mention: +${gained} users.`);
+      } else if (roll < 0.80) {
+        // Ignored
+        notify(`They ghosted you. Nothing happened.`, 'info');
+        logEvent(`Influencer outreach: no response.`);
+      } else {
+        // Public dunk
+        const pct = 0.10 + Math.random() * 0.15;
+        const lost = Math.floor(G.totalUsers * pct);
+        G.totalUsers = Math.max(0, G.totalUsers - lost);
+        G.payingUsers = Math.max(0, G.payingUsers * (1 - pct));
+        notify(`They dunked on you publicly. -${lost} users rage-quit.`, 'danger');
+        logEvent(`Influencer dragged ${G.companyName} online: -${lost} users.`);
+      }
+      delete G.purchased['contact_influencer'];
+    },
+    repeatable: true
+  },
+  {
+    id: 'podcast_sponsor',
+    name: 'Sponsor a Podcast',
+    type: 'auto',
+    tag: 'tag-auto',
+    tagLabel: 'Auto',
+    desc: 'Pay for a mid-roll ad. Episode airs in 30 seconds — listeners convert over time.',
+    cost: 3000,
+    unlockUsers: 200,
+    onBuy: () => {
+      const userGain = Math.floor(40 + G.totalUsers * 0.15);
+      G.activeCountdowns.push({
+        id: 'podcast_' + Date.now(),
+        label: '🎙️ Episode Airing...',
+        total: 30,
+        remaining: 30,
+        onComplete: () => {
+          G.totalUsers += userGain;
+          G.autoRate += 0.5;
+          notify(`Podcast episode dropped! +${userGain} users, +0.5/sec ongoing.`, 'success');
+          logEvent(`Podcast sponsorship paid off: +${userGain} users, +0.5/sec.`);
+        }
+      });
+      notify('Episode recording complete — airs in 30 seconds.', 'info');
+      logEvent('Podcast sponsorship purchased. Waiting for episode to drop.');
+      delete G.purchased['podcast_sponsor'];
+    },
+    repeatable: true
+  },
   {
     id: 'referral',
     name: 'Referral Program',
@@ -1634,16 +1794,99 @@ const UPGRADES = [
 
   // ---- CLICK UPGRADES ----
   {
+    id: 'blog_post',
+    name: 'Write a Blog Post',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Write about the problem you\'re solving. Gets shared. +40 users, free.',
+    cost: 0,
+    unlockCash: 0,
+    onBuy: () => { G.totalUsers += 40; },
+    repeatable: false
+  },
+  {
+    id: 'social_post_daily',
+    name: 'Post to Social Media Every Day',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Building in public for a week. Small but consistent. +0.3 users/sec',
+    cost: 0,
+    dignityCost: 1,
+    unlockCash: 0,
+    onBuy: () => { G.autoRate += 0.3; },
+    repeatable: false
+  },
+  {
+    id: 'subreddit_post',
+    name: 'Post in a Subreddit',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Find the right community, post your story. Hope they don\'t roast you. +1 click power',
+    cost: 0,
+    dignityCost: 1,
+    unlockCash: 0,
+    onBuy: () => { G.clickPower += 1; },
+    repeatable: false
+  },
+  {
+    id: 'cold_email',
+    name: 'Cold Email Blast',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Spam 200 people you found on LinkedIn. Feels gross, kind of works. +5 click power',
+    cost: 500,
+    dignityCost: 2,
+    unlockCash: 0,
+    onBuy: () => { G.clickPower += 5; },
+    repeatable: false
+  },
+  {
+    id: 'start_discord',
+    name: 'Start a Discord',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Build a community around the product. +0.2 users/sec, +0.5% conversion',
+    cost: 0,
+    unlockUsers: 30,
+    onBuy: () => { G.autoRate += 0.2; G.convRate += 0.005; },
+    repeatable: false
+  },
+  {
     id: 'better_pitch',
     name: 'Better Pitch Deck',
     type: 'upgrade',
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
-    desc: 'Sharper messaging, more signups per mention. +4 click power',
+    desc: 'Sharper messaging, more signups per mention. +2 click power',
     cost: 1000,
     unlockCash: 0,
-    onBuy: () => { G.clickPower += 4; },
+    onBuy: () => { G.clickPower += 2; },
     repeatable: false
+  },
+  {
+    id: 'pivot_rebrand',
+    name: 'Pivot & Rebrand',
+    type: 'upgrade',
+    tag: 'tag-upgrade',
+    tagLabel: 'Upgrade',
+    desc: 'Burn it down, start fresh. New name, new vibe, same codebase.',
+    cost: 3000,
+    unlockUsers: 50,
+    onBuy: () => {
+      const others = COMPANIES.filter(c => c.name !== G.companyName);
+      const c = pickRandom(others);
+      G.companyName = c.name; G.companyEmoji = c.emoji; G.companyDesc = c.desc;
+      logEvent(`Pivoted! Now operating as ${c.name}.`);
+      notify(`Rebranded to ${c.name}. Fresh start.`, 'success');
+      // Allow re-purchase
+      delete G.purchased['pivot_rebrand'];
+    },
+    repeatable: true
   },
   {
     id: 'demo_day',
@@ -1651,10 +1894,10 @@ const UPGRADES = [
     type: 'upgrade',
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
-    desc: 'Pitch in front of 500 people. +15 click power',
+    desc: 'Pitch in front of 500 people. +200 users immediately, +1 user/sec ongoing.',
     cost: 4000,
     unlockUsers: 100,
-    onBuy: () => { G.clickPower += 15; },
+    onBuy: () => { G.totalUsers += 200; G.autoRate += 1; },
     repeatable: false
   },
   {
@@ -1687,10 +1930,26 @@ const UPGRADES = [
     type: 'upgrade',
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
-    desc: 'Viral spike! +50 click power for this run',
+    desc: '🚀 10-second launch window! Upvotes pour in — results arrive when the clock runs out.',
     cost: 6000,
     unlockUsers: 300,
-    onBuy: () => { G.clickPower += 50; },
+    onBuy: () => {
+      const burst = Math.floor(150 + G.totalUsers * 0.3);
+      G.activeCountdowns.push({
+        id: 'product_hunt',
+        label: '🚀 Product Hunt Live!',
+        total: 10,
+        remaining: 10,
+        onComplete: () => {
+          G.totalUsers += burst;
+          G.clickPower += 30;
+          notify(`Product Hunt results in! +${burst} users, +30 click power.`, 'success');
+          logEvent(`Product Hunt launch ended: +${burst} users, +30 click power.`);
+        }
+      });
+      notify('Product Hunt is live! 10 seconds until the results are in...', 'info');
+      logEvent('Product Hunt launch started — 10 second countdown.');
+    },
     repeatable: false
   },
   {
@@ -1755,18 +2014,6 @@ const UPGRADES = [
   },
 
   // ---- PLAN TIERS ----
-  {
-    id: 'plan_basic',
-    name: 'Launch Basic Plan ($29/mo)',
-    type: 'plan',
-    tag: 'tag-plan',
-    tagLabel: 'Plan',
-    desc: 'Enable your first paid tier. Users on Basic generate $29 ARPU.',
-    cost: 2000,
-    unlockUsers: 150,
-    onBuy: () => { G.plansUnlocked.basic = true; recalcARPU(); },
-    repeatable: false
-  },
   {
     id: 'plan_pro',
     name: 'Launch Pro Plan ($99/mo)',
@@ -2005,13 +2252,14 @@ const UPGRADES = [
     type: 'upgrade',
     tag: 'tag-upgrade',
     tagLabel: 'Upgrade',
-    desc: 'Customers prepay yearly at a discount. +20% conversion rate, -15% effective ARPU.',
+    desc: 'Customers prepay yearly at a discount. +20% conversion rate, -15% effective ARPU, -2% monthly churn.',
     cost: 3000,
     unlockCash: 0,
     bootstrapOnly: true,
     onBuy: () => {
       G.convRate *= 1.20;
       G.arpu *= 0.85;
+      G.churnRate = Math.max(0.005, G.churnRate - 0.02);
       G.bsAnnualPlanActive = true;
     },
     repeatable: false
@@ -2034,6 +2282,129 @@ const UPGRADES = [
     },
     repeatable: false
   },
+
+  // ---- FINANCING ----
+  {
+    id: 'borrow_mom',
+    name: 'Borrow from Mom',
+    type: 'finance',
+    tag: 'tag-finance',
+    tagLabel: 'Finance',
+    desc: 'She\'s so proud of you. Unconditional support: +$2,500 cash, no strings attached.',
+    cost: 0,
+    dignityCost: 1,
+    unlockCash: 0,
+    onBuy: () => {
+      G.cash += 2500;
+      notify('Mom came through. +$2,500. She just wants you to be happy.', 'success');
+      logEvent('Borrowed $2,500 from Mom. She believes in you.');
+    },
+    repeatable: false
+  },
+  {
+    id: 'blockchain_hackathon',
+    name: 'Win a Blockchain Hackathon',
+    type: 'finance',
+    tag: 'tag-finance',
+    tagLabel: 'Finance',
+    desc: 'Spend a weekend building a "decentralized solution." Prize money if you win.',
+    cost: 100,
+    dignityCost: 1,
+    unlockCash: 0,
+    onBuy: () => {
+      const roll = Math.random();
+      if (roll < 0.40) {
+        G.cash += 1000;
+        notify('You won! The judges loved "blockchain for SaaS." +$1,000.', 'success');
+        logEvent('Won blockchain hackathon: +$1,000 prize.');
+      } else if (roll < 0.70) {
+        G.cash += 400;
+        notify('Runner-up. Consolation prize: +$400. Still counts.', 'info');
+        logEvent('Hackathon runner-up: +$400 consolation prize.');
+      } else {
+        notify('Didn\'t place. The judges went with the NFT ticketing app. Weekend: gone.', 'warn');
+        logEvent('Hackathon attempt failed. Lost $100 entry fee and a weekend.');
+      }
+      delete G.purchased['blockchain_hackathon'];
+    },
+    repeatable: true
+  },
+  {
+    id: 'max_credit_card',
+    name: 'Max Out Credit Cards',
+    type: 'finance',
+    tag: 'tag-finance',
+    tagLabel: 'Finance',
+    desc: 'Future-you will deal with it. +$8,000 now, +$350/mo minimum payments.',
+    cost: 0,
+    unlockCash: 0,
+    onBuy: () => {
+      G.cash += 8000;
+      G.burnRate += 350;
+      notify('+$8,000 in the bank. Future-you is going to be so stressed.', 'warn');
+      logEvent('Maxed out credit cards: +$8,000 cash, +$350/mo burn (interest).');
+    },
+    repeatable: false
+  },
+  {
+    id: 'pitch_competition',
+    name: 'Enter a Pitch Competition',
+    type: 'finance',
+    tag: 'tag-finance',
+    tagLabel: 'Finance',
+    desc: 'Three minutes, a clicker, and a prayer. Prize money if the judges like you.',
+    cost: 0,
+    dignityCost: 1,
+    unlockUsers: 50,
+    onBuy: () => {
+      const roll = Math.random();
+      if (roll < 0.55) {
+        G.cash += 5000;
+        notify('You nailed it! Best pitch of the night. +$5,000 prize.', 'success');
+        logEvent('Won pitch competition: +$5,000.');
+      } else {
+        notify('The judges went with the dog-walking app. Better luck next time.', 'info');
+        logEvent('Pitch competition: no prize. Dignity: debatable.');
+      }
+      delete G.purchased['pitch_competition'];
+    },
+    repeatable: true
+  },
+  {
+    id: 'revenue_financing',
+    name: 'Revenue-Based Financing',
+    type: 'finance',
+    tag: 'tag-finance',
+    tagLabel: 'Finance',
+    desc: 'An RBF firm advances $20k against future revenue. +$20,000 now, +$400/mo repayment.',
+    cost: 0,
+    unlockPaying: 20,
+    onBuy: () => {
+      G.cash += 20000;
+      G.burnRate += 400;
+      notify('+$20,000 upfront. Repayment starts immediately at $400/mo.', 'success');
+      logEvent('Revenue-based financing: +$20,000 cash, +$400/mo repayment burn.');
+    },
+    repeatable: false
+  },
+  {
+    id: 'conference_merch',
+    name: 'Sell Merch at a Conference',
+    type: 'finance',
+    tag: 'tag-finance',
+    tagLabel: 'Finance',
+    desc: 'Logo tees and stickers at a booth. Surprisingly effective bootstrap tactic.',
+    cost: 500,
+    unlockUsers: 100,
+    onBuy: () => {
+      const earned = Math.floor(800 + Math.random() * 1700);
+      G.cash += earned;
+      notify(`Merch table cleaned out! Earned ${fmt(earned)} in swag sales.`, 'success');
+      logEvent(`Conference merch sales: +${fmt(earned)}.`);
+      delete G.purchased['conference_merch'];
+    },
+    repeatable: true
+  },
 ];
 
 const TEAM_INFO = {
@@ -2055,6 +2426,7 @@ const FUNDING_ROUNDS = [
     name: 'Pre-Seed',
     label: 'Pre-Seed Round',
     triggerUsers: 500,
+    triggerPayingUsers: 150,
     triggerMRR: 0,
     desc: 'An angel investor sees potential in your product. Two term sheets on the table.',
     terms: [
@@ -2175,14 +2547,14 @@ const RANDOM_EVENTS = [
       },
       {
         title: 'Ride It Out',
-        desc: '+10% churn for 45 seconds. Risky.',
+        desc: '+5% churn for 30 seconds. Risky.',
         onChoose: () => {
-          addEffect('competitor', 'Competitor Pressure', 45, () => {
-            G.churnRate += 0.1;
+          addEffect('competitor', 'Competitor Pressure', 30, () => {
+            G.churnRate += 0.05;
           }, () => {
-            G.churnRate = Math.max(0.003, G.churnRate - 0.1);
+            G.churnRate = Math.max(0.003, G.churnRate - 0.05);
           });
-          logEvent('Competitor launched -- churn spiking for 45s.');
+          logEvent('Competitor launched -- churn spiking for 30s.');
         }
       }
     ]
@@ -2225,22 +2597,24 @@ const RANDOM_EVENTS = [
     choices: [
       {
         title: 'Boost Servers ($2k)',
-        desc: '+800 users, all conversions captured.',
+        desc: '+25% users, all conversions captured.',
         onChoose: () => {
-          if (G.cash < 2000) { notify('Not enough cash -- servers crashed!', 'danger'); G.totalUsers += 200; return; }
+          if (G.cash < 2000) { notify('Not enough cash -- servers crashed!', 'danger'); G.totalUsers += Math.floor(G.totalUsers * 0.1); return; }
           G.cash -= 2000;
-          G.totalUsers += 800;
-          notify('Servers held! Viral wave captured.', 'success');
-          logEvent('Viral tweet: +800 users (paid $2k for servers).');
+          const gained = Math.max(100, Math.floor(G.totalUsers * 0.25));
+          G.totalUsers += gained;
+          notify(`Servers held! Viral wave captured. +${gained} users!`, 'success');
+          logEvent(`Viral tweet: +${gained} users (paid $2k for servers).`);
         }
       },
       {
         title: 'Let It Ride (Free)',
-        desc: '+400 users but 50% signup failure rate.',
+        desc: '+12% users but 50% signup failure rate.',
         onChoose: () => {
-          G.totalUsers += 400;
+          const gained = Math.max(50, Math.floor(G.totalUsers * 0.12));
+          G.totalUsers += gained;
           notify('Servers struggled. Captured half the traffic.', 'warn');
-          logEvent('Viral tweet: +400 users (servers strained).');
+          logEvent(`Viral tweet: +${gained} users (servers strained).`);
         }
       }
     ]
@@ -2296,13 +2670,14 @@ const RANDOM_EVENTS = [
         }
       },
       {
-        title: 'Negotiate (ask for $3M)',
-        desc: '50% they accept (+$3M cash), 50% they walk.',
+        title: 'Negotiate (counter higher)',
+        desc: '50% they accept (+3× ARR in cash), 50% they walk.',
         onChoose: () => {
+          const offer = Math.max(50000, Math.floor(G.mrr * 36));
           if (Math.random() < 0.5) {
-            G.cash += 3000000;
-            notify('They accepted! $3M added to cash!', 'success');
-            logEvent('Acqui-hire negotiation: SUCCESS. +$3M!');
+            G.cash += offer;
+            notify(`They accepted! ${fmt(offer)} added to cash!`, 'success');
+            logEvent(`Acqui-hire negotiation: SUCCESS. +${fmt(offer)}!`);
           } else {
             notify('They walked. No deal.', 'warn');
             logEvent('Acqui-hire negotiation: failed. No deal.');
@@ -2343,12 +2718,13 @@ const RANDOM_EVENTS = [
     choices: [
       {
         title: 'Accept Partnership',
-        desc: '+1000 users immediately, -30% ARPU for 60s.',
+        desc: '+20% users immediately, -30% ARPU for 60s.',
         onChoose: () => {
-          G.totalUsers += 1000;
+          const gained = Math.max(200, Math.floor(G.totalUsers * 0.20));
+          G.totalUsers += gained;
           addEffect('partnership', 'Revenue Share', 60, () => { G.arpu *= 0.7; }, () => { recalcARPU(); });
-          notify('Partnership signed! +1000 users.', 'success');
-          logEvent('Partnership: +1000 users, -30% ARPU for 60s.');
+          notify(`Partnership signed! +${gained} users.`, 'success');
+          logEvent(`Partnership: +${gained} users, -30% ARPU for 60s.`);
         }
       },
       {
@@ -2378,7 +2754,7 @@ function fmtNum(n) {
   if (n >= 1e9) return (n/1e9).toFixed(2) + 'B';
   if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
   if (n >= 1e3) return (n/1e3).toFixed(1) + 'k';
-  return Math.floor(n).toLocaleString();
+  return Math.round(n).toLocaleString();
 }
 
 function fmtRate(r) {
@@ -2455,6 +2831,8 @@ function handleClick(e) {
 //  GAME TICK
 // ============================================================
 const TICK_MS = 100; // 10 ticks/second
+const SECS_PER_MONTH = 60; // 1 real minute = 1 game month
+const SECS_PER_DAY = SECS_PER_MONTH / 30; // 2 real seconds = 1 game day
 
 function gameTick() {
   if (G.gameOver || G.ipoTriggered || G.acquisitionTriggered) return;
@@ -2483,13 +2861,15 @@ function gameTick() {
 
   // -- Paying user conversion --
   const targetPaying = Math.floor(G.totalUsers * G.convRate);
-  // Smooth approach to target
-  G.payingUsers += (targetPaying - G.payingUsers) * 0.05 * dt * 10;
+  // Only smooth upward — churn handles downward pressure
+  if (G.payingUsers < targetPaying) {
+    G.payingUsers += (targetPaying - G.payingUsers) * 0.05 * dt * 10;
+  }
   G.payingUsers = Math.max(0, Math.min(G.payingUsers, G.totalUsers));
 
   // -- Churn (applied to paying users) --
   const monthlyChurn = G.churnRate;
-  const churnPerSec = monthlyChurn / (30 * 24 * 3600);
+  const churnPerSec = monthlyChurn / SECS_PER_MONTH;
   const churned = G.payingUsers * churnPerSec * dt;
   G.payingUsers = Math.max(0, G.payingUsers - churned);
   // Total users churn too (slightly less)
@@ -2497,12 +2877,32 @@ function gameTick() {
 
   // -- MRR calc --
   recalcARPU();
-  G.mrr = G.payingUsers * G.arpu * prestigeData.revMult;
+  G.mrr = Math.round(G.payingUsers) * G.arpu * prestigeData.revMult;
 
-  // -- Cash flow (tick-based, monthly -> per second) --
-  const netMonthly = G.mrr - G.burnRate;
-  const netPerSec = netMonthly / (30 * 24 * 3600);
-  G.cash += netPerSec * dt;
+  // -- Immediate cash on new paying user (first month's payment) --
+  const payingFloor = Math.round(G.payingUsers);
+  if (payingFloor > G.lastPayingFloor) {
+    G.cash += (payingFloor - G.lastPayingFloor) * G.arpu * prestigeData.revMult;
+    G.lastPayingFloor = payingFloor;
+  }
+
+  // -- Cash flow (daily payouts — 1 game day = 2 real seconds) --
+  G.nextDayIn -= dt;
+  if (G.nextDayIn <= 0) {
+    G.nextDayIn = SECS_PER_DAY;
+    const dailyNet = (G.mrr - G.burnRate) / 30;
+    G.cash += dailyNet;
+  }
+
+  // -- Countdown timers --
+  G.activeCountdowns = G.activeCountdowns.filter(cd => {
+    cd.remaining -= dt;
+    if (cd.remaining <= 0) {
+      cd.onComplete();
+      return false;
+    }
+    return true;
+  });
 
   // -- Active effects --
   G.activeEffects = G.activeEffects.filter(ef => {
@@ -2521,22 +2921,16 @@ function gameTick() {
     return;
   }
 
-  // -- Path-specific win condition checks --
-  if (G.path === 'vc') {
-    checkFundingTriggers();
-  } else {
-    checkAcquisitionTrigger();
+  // -- Win condition checks --
+  checkFundingTriggers(); // funding rounds available regardless of path
+  if (G.investorEquity === 0) {
+    checkAcquisitionTrigger(); // acquisition only available while equity-free
   }
 
-  // -- Check random events (activity-based: fires after enough user growth) --
-  const usersSinceLastEvent = G.totalUsers - G.lastEventUsers;
-  if (usersSinceLastEvent >= G.eventUserThreshold) {
-    // Always advance the threshold so it scales with progress
-    G.lastEventUsers = G.totalUsers;
-    G.eventUserThreshold = Math.max(300, G.totalUsers * 0.15);
-    if (!isModalOpen()) {
-      triggerRandomEvent();
-    }
+  // -- Check random events (MRR milestone-based) --
+  if (G.mrr > 0 && G.mrr >= G.nextEventMRR && !isModalOpen()) {
+    G.nextEventMRR = G.mrr * 5;
+    triggerRandomEvent();
   }
 
   // -- Stage update --
@@ -2577,7 +2971,8 @@ function checkFundingTriggers() {
   if (nextRoundIdx >= FUNDING_ROUNDS.length) return;
 
   const round = FUNDING_ROUNDS[nextRoundIdx];
-  if (G.totalUsers >= round.triggerUsers && G.mrr >= round.triggerMRR) {
+  const payingOk = !round.triggerPayingUsers || Math.round(G.payingUsers) >= round.triggerPayingUsers;
+  if (G.totalUsers >= round.triggerUsers && G.mrr >= round.triggerMRR && payingOk) {
     G.fundingLocked = true;
     if (round.isIPO) {
       triggerIPO();
@@ -2608,6 +3003,7 @@ function showFundingModal(roundIdx) {
     termsEl.appendChild(el);
   });
 
+  document.getElementById('fr-pass-btn').onclick = () => passFunding(roundIdx);
   document.getElementById('funding-overlay').classList.remove('hidden');
 }
 
@@ -2618,11 +3014,22 @@ function acceptFunding(roundIdx, term) {
   G.totalRaised += term.amount;
   G.investorEquity = Math.min(0.95, G.investorEquity + term.equity);
   G.fundingLocked = false;
+  G.path = 'vc';
+  updatePathUI();
 
   const round = FUNDING_ROUNDS[roundIdx];
   notify(`${round.name} complete! ${fmt(term.amount)} raised at ${(term.equity*100).toFixed(0)}% equity.`, 'success');
   logEvent(`${round.name}: raised ${fmt(term.amount)}, gave ${(term.equity*100).toFixed(0)}% equity.`);
   renderUpgrades();
+}
+
+function passFunding(roundIdx) {
+  document.getElementById('funding-overlay').classList.add('hidden');
+  G.fundingRound = roundIdx;
+  G.fundingLocked = false;
+  const round = FUNDING_ROUNDS[roundIdx];
+  notify(`Passed on ${round.name}. Staying equity-free.`, 'info');
+  logEvent(`Passed on ${round.name}. No equity given.`);
 }
 
 // ============================================================
@@ -2710,7 +3117,7 @@ function doBootstrapPrestige() {
   document.getElementById('ipo-overlay').querySelector('button').textContent = 'Ring the Bell & Start New Company';
   document.getElementById('ipo-overlay').querySelector('button').onclick = doPrestige;
   updateBadge();
-  showPathSelection();
+  startGame();
 }
 
 // ============================================================
@@ -2742,14 +3149,14 @@ function doPrestige() {
   }
 
   notify(`Prestige! Starting new company with ${(prestigeData.revMult).toFixed(1)}x revenue multiplier.`, 'success');
-  showPathSelection();
+  startGame();
 }
 
-function resetForPrestige(path) {
-  initGame(path || 'vc');
-  G.convRate += prestigeData.convBonus;
-  if (G.path === 'bootstrap') G.convRate += prestigeData.bsConvBonus;
-  G.companyName = pickRandom(COMPANY_NAMES);
+function resetForPrestige() {
+  initGame();
+  G.convRate += prestigeData.convBonus + prestigeData.bsConvBonus;
+  const _c = pickRandom(COMPANIES);
+  G.companyName = _c.name; G.companyEmoji = _c.emoji; G.companyDesc = _c.desc;
   renderUpgrades();
   render();
   updateBadge();
@@ -2801,22 +3208,21 @@ function restartGame(keepPrestige = false) {
     prestigeData = { ipos: 0, bswins: 0, clickMult: 1, revMult: 1, convBonus: 0, bsConvBonus: 0, bsCashBonus: 0 };
   }
   updateBadge();
-  showPathSelection();
+  startGame();
 }
 
 // ============================================================
-//  PATH SELECTION
+//  GAME START
 // ============================================================
 function showPathSelection() {
+  // Legacy: now just shows the start screen
   document.getElementById('path-overlay').classList.remove('hidden');
 }
 
-function choosePath(path) {
+function startGame() {
   document.getElementById('path-overlay').classList.add('hidden');
-  resetForPrestige(path);
-  logEvent(path === 'bootstrap'
-    ? 'Bootstrapped path chosen. $10k in savings. Build something real.'
-    : 'VC-backed path chosen. Time to raise and scale.');
+  resetForPrestige();
+  logEvent('New company founded. Basic plan ready. Take funding or stay equity-free — your choice.');
 }
 
 function updatePathUI() {
@@ -2919,6 +3325,7 @@ function renderUpgrades() {
     { label: 'Product & Growth', types: ['upgrade'], icon: '⚡' },
     { label: 'Pricing Plans', types: ['plan'], icon: '💰' },
     { label: 'Team', types: ['team'], icon: '👥' },
+    { label: 'Financing', types: ['finance'], icon: '🏦' },
   ];
 
   // Bootstrap mode: show a note that team hires require profitability
@@ -2958,12 +3365,16 @@ function renderUpgrades() {
       const bsTag = upg.bootstrapOnly ? `<span class="upgrade-tag" style="background:#0f2a1a;color:var(--green);">🥾 Bootstrap</span> ` : '';
       const tipAttr = upg.tooltip ? ` data-tip="${upg.tooltip}"` : '';
 
+      const dignityStr = upg.dignityCost && !bought
+        ? `<div class="dignity-cost">💔 costs ${upg.dignityCost === 1 ? '1 dignity' : upg.dignityCost + ' dignity'}</div>`
+        : '';
       card.innerHTML = `
         <div class="upgrade-header"${tipAttr}>
           <div class="upgrade-name">${upg.name}</div>
-          <div class="upgrade-cost ${bought ? '' : !canAfford ? 'cant-afford' : ''}">${bought ? '✓' : fmt(upg.cost)}</div>
+          <div class="upgrade-cost ${bought ? '' : !canAfford ? 'cant-afford' : ''}">${bought ? '✓' : upg.cost === 0 ? 'Free' : fmt(upg.cost)}</div>
         </div>
         <div class="upgrade-desc">${upg.desc}</div>
+        ${dignityStr}
         ${upg.isHire && !bought ? `<div class="hire-monthly">+${fmt(upg.monthlyCost)}/mo burn</div>` : ''}
         ${bsTag}<span class="upgrade-tag ${upg.tag}">${upg.tagLabel}</span>
       `;
@@ -2989,7 +3400,7 @@ function renderUpgrades() {
       card.innerHTML = `
         <div class="upgrade-header">
           <div class="upgrade-name">🔒 ${nextLocked.name}</div>
-          <div class="upgrade-cost">${fmt(nextLocked.cost)}</div>
+          <div class="upgrade-cost">${nextLocked.cost === 0 ? 'Free' : fmt(nextLocked.cost)}</div>
         </div>
         <div class="upgrade-desc">${lockHint}</div>
         <span class="upgrade-tag ${nextLocked.tag}">${nextLocked.tagLabel}</span>
@@ -3006,10 +3417,10 @@ function render() {
   if (G.gameOver) return;
 
   // Stage
-  document.getElementById('company-stage').textContent = STAGE_EMOJIS[G.stage];
-  document.getElementById('stage-emoji').textContent = STAGE_EMOJIS[G.stage];
+  document.getElementById('stage-emoji').textContent = G.companyEmoji;
   document.getElementById('stage-label').textContent = STAGE_LABELS[G.stage];
   document.getElementById('company-name').textContent = G.companyName;
+  document.getElementById('company-tagline').textContent = G.companyDesc;
   document.getElementById('company-name-header').textContent = G.companyName;
 
   // Click power
@@ -3018,7 +3429,7 @@ function render() {
 
   // User stats
   document.getElementById('s-total-users').textContent = fmtNum(G.totalUsers);
-  document.getElementById('s-paying').textContent = fmtNum(Math.floor(G.payingUsers));
+  document.getElementById('s-paying').textContent = fmtNum(Math.round(G.payingUsers));
   document.getElementById('s-conv').textContent = fmtRate(G.convRate);
   document.getElementById('s-churn').textContent = fmtRate(G.churnRate) + '/mo';
   document.getElementById('s-auto').textContent = G.autoRate.toFixed(1) + '/s';
@@ -3156,34 +3567,25 @@ function render() {
       document.getElementById('milestone-right').textContent = fmt(ACQ_MRR) + ' MRR';
     }
   } else {
-    // Pre-milestone: show Basic Plan unlock hint until the player has 150 total users
-    if (!G.plansUnlocked.basic && G.totalUsers < 150) {
-      document.getElementById('milestone-title').textContent = 'Next: Basic Plan unlock';
-      const prog = Math.min(1, G.totalUsers / 150);
-      document.getElementById('milestone-bar').style.width = (prog * 100) + '%';
-      document.getElementById('milestone-left').textContent = fmtNum(Math.floor(G.totalUsers)) + ' users';
-      document.getElementById('milestone-right').textContent = '150 users';
-    } else {
-      const nextRoundIdx = G.fundingRound + 1;
-      if (nextRoundIdx < FUNDING_ROUNDS.length) {
-        const nextRound = FUNDING_ROUNDS[nextRoundIdx];
-        document.getElementById('milestone-title').textContent = 'Next: ' + nextRound.label;
-        let prog = 0;
-        let rightLabel = fmtNum(nextRound.triggerUsers) + ' users';
-        if (nextRound.triggerMRR > 0 && G.totalUsers >= nextRound.triggerUsers) {
-          prog = Math.min(1, G.mrr / nextRound.triggerMRR);
-          rightLabel = fmt(nextRound.triggerMRR) + ' MRR';
-          document.getElementById('milestone-left').textContent = fmt(G.mrr);
-        } else {
-          prog = Math.min(1, G.totalUsers / nextRound.triggerUsers);
-          document.getElementById('milestone-left').textContent = fmtNum(Math.floor(G.totalUsers));
-        }
-        document.getElementById('milestone-bar').style.width = (prog * 100) + '%';
-        document.getElementById('milestone-right').textContent = rightLabel;
+    const nextRoundIdx = G.fundingRound + 1;
+    if (nextRoundIdx < FUNDING_ROUNDS.length) {
+      const nextRound = FUNDING_ROUNDS[nextRoundIdx];
+      document.getElementById('milestone-title').textContent = 'Next: ' + nextRound.label;
+      let prog = 0;
+      let rightLabel = fmtNum(nextRound.triggerUsers) + ' users';
+      if (nextRound.triggerMRR > 0 && G.totalUsers >= nextRound.triggerUsers) {
+        prog = Math.min(1, G.mrr / nextRound.triggerMRR);
+        rightLabel = fmt(nextRound.triggerMRR) + ' MRR';
+        document.getElementById('milestone-left').textContent = fmt(G.mrr);
       } else {
-        document.getElementById('milestone-title').textContent = '🚀 IPO Achieved!';
-        document.getElementById('milestone-bar').style.width = '100%';
+        prog = Math.min(1, G.totalUsers / nextRound.triggerUsers);
+        document.getElementById('milestone-left').textContent = fmtNum(Math.floor(G.totalUsers));
       }
+      document.getElementById('milestone-bar').style.width = (prog * 100) + '%';
+      document.getElementById('milestone-right').textContent = rightLabel;
+    } else {
+      document.getElementById('milestone-title').textContent = '🚀 IPO Achieved!';
+      document.getElementById('milestone-bar').style.width = '100%';
     }
   }
 
@@ -3202,6 +3604,32 @@ function render() {
     });
   } else {
     effectsBlock.style.display = 'none';
+  }
+
+  // Countdown timers
+  const countdownBlock = document.getElementById('countdown-block');
+  const countdownList = document.getElementById('countdown-list');
+  if (G.activeCountdowns.length > 0) {
+    countdownBlock.style.display = '';
+    countdownList.innerHTML = '';
+    G.activeCountdowns.forEach(cd => {
+      const pct = Math.max(0, cd.remaining / cd.total) * 100;
+      const secs = Math.ceil(cd.remaining);
+      const el = document.createElement('div');
+      el.className = 'countdown-item';
+      el.innerHTML = `
+        <div class="countdown-label">
+          <span>${cd.label}</span>
+          <span class="countdown-time">${secs}s</span>
+        </div>
+        <div class="countdown-bar-bg">
+          <div class="countdown-bar-fill" style="width:${pct}%"></div>
+        </div>
+      `;
+      countdownList.appendChild(el);
+    });
+  } else {
+    countdownBlock.style.display = 'none';
   }
 
   // Team block
