@@ -1746,9 +1746,9 @@ const UPGRADES = [
         remaining: 30,
         onComplete: () => {
           G.totalUsers += userGain;
-          G.autoRate += 0.5;
-          notify(`Podcast episode dropped! +${userGain} users, +0.5/sec ongoing.`, 'success');
-          logEvent(`Podcast sponsorship paid off: +${userGain} users, +0.5/sec.`);
+          addEffect('podcast_traffic', '🎙️ Listener Spike', 90, () => { G.autoRate += 1.5; }, () => { G.autoRate -= 1.5; });
+          notify(`Podcast episode dropped! +${userGain} users, +1.5/sec for 90s.`, 'success');
+          logEvent(`Podcast sponsorship paid off: +${userGain} users, 90s growth spike.`);
         }
       });
       addEffect('podcast_hype', '🎙️ Podcast Hype', 15, () => { G.clickPower += 30; }, () => { G.clickPower -= 30; });
@@ -1982,12 +1982,12 @@ const UPGRADES = [
         remaining: 10,
         onComplete: () => {
           G.totalUsers += burst;
-          G.clickPower += 30;
-          notify(`Product Hunt results in! +${burst} users, +30 click power.`, 'success');
-          logEvent(`Product Hunt launch ended: +${burst} users, +30 click power.`);
+          addEffect('ph_traffic', '🚀 PH Traffic Spike', 60, () => { G.clickPower += 50; }, () => { G.clickPower -= 50; });
+          notify(`Product Hunt results in! +${burst} users, +50 click power for 60s.`, 'success');
+          logEvent(`Product Hunt launch ended: +${burst} users, 60s click spike.`);
         }
       });
-      notify('Product Hunt is live! 10 seconds until the results are in...', 'info');
+      notify('Product Hunt is live! Results in 10 seconds...', 'info');
       logEvent('Product Hunt launch started — 10 second countdown.');
     },
     repeatable: false
@@ -2443,31 +2443,31 @@ const FUNDING_ROUNDS = [
   {
     name: 'Pre-Seed',
     label: 'Pre-Seed Round',
-    triggerUsers: 500,
+    triggerUsers: 12000,
     triggerPayingUsers: 150,
     triggerMRR: 0,
-    desc: 'An angel investor sees potential in your product. Two term sheets on the table.',
+    desc: 'A friend-of-a-friend angel heard you\'re "working on something." The term sheets are... cheeky.',
     terms: [
-      { amount: 100000, equity: 0.08, label: '$100k @ 8%', desc: 'Bootstrap-friendly terms from a founder-first angel. Lower dilution.' },
-      { amount: 200000, equity: 0.15, label: '$200k @ 15%', desc: 'More runway, more resources. Higher dilution but faster growth.' }
+      { amount: 40000, equity: 0.15, label: '$40k @ 15%', desc: 'Barely covers two months of runway. But hey, validation.' },
+      { amount: 75000, equity: 0.22, label: '$75k @ 22%', desc: 'More cash, more dilution. You\'ve seen better offers at hackathons.' }
     ]
   },
   {
     name: 'Seed',
     label: 'Seed Round',
-    triggerUsers: 2000,
-    triggerMRR: 5000,
-    desc: 'You\'ve proven the concept. A seed-stage VC fund wants in with real capital.',
+    triggerUsers: 28000,
+    triggerMRR: 8000,
+    desc: 'A small seed fund noticed your traction. They\'re interested. The terms still sting a little.',
     terms: [
-      { amount: 500000, equity: 0.12, label: '$500k @ 12%', desc: 'Tier-2 VC, clean terms, fast close. Good runway.' },
-      { amount: 1000000, equity: 0.20, label: '$1M @ 20%', desc: 'Top-tier VC with network access. Significant dilution.' }
+      { amount: 250000, equity: 0.18, label: '$250k @ 18%', desc: 'A regional VC with a podcast no one listens to. Clean terms though.' },
+      { amount: 500000, equity: 0.25, label: '$500k @ 25%', desc: 'Real money. Painful dilution. Their LP update emails are monthly.' }
     ]
   },
   {
     name: 'Series A',
     label: 'Series A',
-    triggerUsers: 10000,
-    triggerMRR: 50000,
+    triggerUsers: 50000,
+    triggerMRR: 80000,
     desc: 'You have strong product-market fit. Institutional VCs are competing for your deal.',
     terms: [
       { amount: 3000000, equity: 0.18, label: '$3M @ 18%', desc: 'Clean term sheet, board seat optional.' },
