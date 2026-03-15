@@ -908,7 +908,7 @@
     right: 0;
     background: var(--bg2);
     border-top: 1px solid var(--border);
-    z-index: 80;
+    z-index: 200;
     height: calc(56px + env(safe-area-inset-bottom, 0px));
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
@@ -949,14 +949,19 @@
       overflow: hidden;
       position: relative;
       flex: 1;
-      /* shrink so panels don't extend behind the tab bar — prevents touch swallowing */
-      padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+      min-height: 0;
     }
 
     .panel {
       display: none;
-      height: 100%;
+      /* Absolutely pin bottom to top of tab bar — prevents touch area from bleeding over buttons */
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: calc(56px + env(safe-area-inset-bottom, 0px));
       overflow-y: auto;
+      overscroll-behavior: contain;
       border-right: none;
       padding-bottom: 12px;
     }
