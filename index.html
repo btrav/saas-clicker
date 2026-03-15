@@ -880,6 +880,19 @@
 
   .danger-pulse { animation: pulse-red 1s ease-in-out infinite; }
 
+  @keyframes infraPulse {
+    0%, 100% { border-color: var(--orange); box-shadow: 0 0 0 0 rgba(249,115,22,0); }
+    50% { border-color: var(--red); box-shadow: 0 0 10px 2px rgba(249,115,22,0.25); }
+  }
+  .upgrade-card.infra-needed { animation: infraPulse 1.4s ease-in-out infinite; }
+
+  @keyframes flashUserRow {
+    0%   { background: rgba(34,197,94,0); }
+    25%  { background: rgba(34,197,94,0.2); }
+    100% { background: rgba(34,197,94,0); }
+  }
+  .stat-row.flash-green { animation: flashUserRow 0.65s ease-out forwards; border-radius: 4px; }
+
   /* RESPONSIVE helpers */
   .flex-center { display: flex; align-items: center; justify-content: center; }
   .gap-2 { gap: 8px; }
@@ -993,12 +1006,27 @@
   #path-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.92);
+    background: rgba(10,10,15,0.68);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 500;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(22px) brightness(0.55);
+  }
+
+  .game-title-logo {
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    color: var(--accent2);
+    margin-bottom: 4px;
+  }
+  .game-title-tagline {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
   }
 
   #path-overlay.hidden { display: none; }
@@ -1460,6 +1488,8 @@
 <!-- PATH SELECTION -->
 <div id="path-overlay">
   <div class="path-modal">
+    <div class="game-title-logo">SaaS Clicker</div>
+    <div class="game-title-tagline">Build · Grow · Exit · Repeat</div>
     <h2>🚀 Build Your Startup</h2>
     <p style="color:var(--text2);margin-bottom:20px;">You start with a Basic plan and $5k in savings. When investors come calling, you can take their money — or pass and keep 100% equity. Your call, every time.</p>
     <button class="btn btn-primary w-full" onclick="startGame()" style="font-size:15px;padding:14px;">Start Company</button>
@@ -1586,6 +1616,7 @@ function initGame() {
     consultingDistraction: false,
     acquisitionTriggered: false,
     acquisitionMultiple: 0,      // the X in X*ARR offer
+    infraWarned: false           // whether the 10k infra warning has fired
   };
 }
 
@@ -2791,17 +2822,30 @@ function logEvent(msg) {
 //  CLICK HANDLER
 // ============================================================
 function handleClick(e) {
-  const power = Math.ceil(G.clickPower * prestigeData.clickMult);
+  const atInfraWall = !G.purchased['cloud_basic'] && G.totalUsers >= 9000;
+  const rawPower = G.clickPower * prestigeData.clickMult;
+  const power = atInfraWall ? Math.floor(rawPower * 0.08) : Math.ceil(rawPower);
   G.totalUsers += power;
 
+  // Flash Total Users stat row for the first 100 users
+  if (G.totalUsers < 100) {
+    const row = document.getElementById('s-total-users').closest('.stat-row');
+    row.classList.remove('flash-green');
+    void row.offsetWidth; // force reflow to restart animation
+    row.classList.add('flash-green');
+    setTimeout(() => row.classList.remove('flash-green'), 650);
+  }
+
   // Float animation
-  const float = document.createElement('div');
-  float.className = 'click-float';
-  float.textContent = '+' + fmtNum(power) + ' user' + (power !== 1 ? 's' : '');
-  float.style.left = (e.clientX - 30) + 'px';
-  float.style.top = (e.clientY - 10) + 'px';
-  document.body.appendChild(float);
-  setTimeout(() => float.remove(), 950);
+  if (power > 0) {
+    const float = document.createElement('div');
+    float.className = 'click-float';
+    float.textContent = '+' + fmtNum(power) + ' user' + (power !== 1 ? 's' : '');
+    float.style.left = (e.clientX - 30) + 'px';
+    float.style.top = (e.clientY - 10) + 'px';
+    document.body.appendChild(float);
+    setTimeout(() => float.remove(), 950);
+  }
 }
 
 // ============================================================
@@ -2825,16 +2869,24 @@ function gameTick() {
     G.consultingCooldown = Math.max(0, G.consultingCooldown - dt);
   }
 
-  // -- Auto users (with distraction debuff in bootstrap) --
+  // -- Auto users (with distraction debuff + infra throttle near 10k) --
   if (G.autoRate > 0) {
-    const autoMult = G.consultingDistraction ? 0.7 : 1.0;
+    const atInfraWall = !G.purchased['cloud_basic'] && G.totalUsers >= 9000;
+    const autoMult = (G.consultingDistraction ? 0.7 : 1.0) * (atInfraWall ? 0.08 : 1.0);
     G.totalUsers += G.autoRate * autoMult * dt;
   }
 
-  // -- Cloud infrastructure cap: can't grow past 10k without it --
-  if (!G.purchased['cloud_basic'] && G.totalUsers > 10000) {
-    G.totalUsers = 10000;
-    G.payingUsers = Math.min(G.payingUsers, 10000);
+  // -- Cloud infrastructure wall: hard cap at 10k, fire one-time warning at 9k --
+  if (!G.purchased['cloud_basic']) {
+    if (!G.infraWarned && G.totalUsers >= 9000) {
+      G.infraWarned = true;
+      notify('⚠️ Infrastructure is buckling — upgrade Cloud Infrastructure to scale past 10,000 users.', 'warn');
+      logEvent('Infrastructure bottleneck hit. Upgrade Cloud Infrastructure to keep growing.');
+    }
+    if (G.totalUsers > 10000) {
+      G.totalUsers = 10000;
+      G.payingUsers = Math.min(G.payingUsers, 10000);
+    }
   }
 
   // -- Paying user conversion --
@@ -3336,8 +3388,9 @@ function renderUpgrades() {
       const bought = G.purchased[upg.id];
       const canAfford = G.cash >= upg.cost;
 
+      const infraNeeded = upg.id === 'cloud_basic' && !bought && G.totalUsers >= 9000;
       const card = document.createElement('div');
-      card.className = 'upgrade-card' + (bought ? ' bought' : '') + (!bought && canAfford ? ' affordable' : '');
+      card.className = 'upgrade-card' + (bought ? ' bought' : '') + (!bought && canAfford ? ' affordable' : '') + (infraNeeded ? ' infra-needed' : '');
       card.onclick = () => { if (!bought) buyUpgrade(upg.id); };
 
       const bsTag = upg.bootstrapOnly ? `<span class="upgrade-tag" style="background:#0f2a1a;color:var(--green);">🥾 Bootstrap</span> ` : '';
