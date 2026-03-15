@@ -663,6 +663,73 @@
     text-align: left;
   }
 
+  /* NEWSLETTER ENDING */
+  #newsletter-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 600;
+    backdrop-filter: blur(10px);
+  }
+  #newsletter-overlay.hidden { display: none; }
+
+  .newsletter-modal {
+    background: var(--bg2);
+    border: 1px solid var(--green);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 520px;
+    width: 92%;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(34,197,94,0.15);
+  }
+
+  .nl-emoji { font-size: 64px; margin-bottom: 12px; }
+
+  .nl-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+
+  .nl-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+
+  .nl-subtitle {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 20px;
+    line-height: 1.7;
+  }
+
+  .nl-roast {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: var(--text2);
+    text-align: left;
+    line-height: 1.7;
+  }
+
+  .nl-stats {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+
   /* IPO SCREEN */
   #ipo-overlay {
     position: fixed;
@@ -1484,6 +1551,21 @@
   </div>
 </div>
 
+<!-- NEWSLETTER ENDING (Bootstrap: 3 wins) -->
+<div id="newsletter-overlay" class="hidden">
+  <div class="newsletter-modal">
+    <div class="nl-emoji">✍️</div>
+    <div class="nl-title">You Retired to a Newsletter</div>
+    <div class="nl-name" id="nl-name">"Bootstrapped & Bougie"</div>
+    <div class="nl-subtitle" id="nl-subtitle"></div>
+    <div class="nl-roast" id="nl-roast"></div>
+    <div class="nl-stats" id="nl-stats"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="restartGame(true)" style="flex:1;min-width:180px;">Start Fresh (Keep Legend Status)</button>
+    </div>
+  </div>
+</div>
+
 <!-- HALL OF FAME -->
 <div id="hof-overlay" class="hidden">
   <div class="hof-modal">
@@ -1574,7 +1656,9 @@ let prestigeData = {
   revMult: 1,
   convBonus: 0,
   bsConvBonus: 0,   // bootstrap prestige: +0.5% conv per win
-  bsCashBonus: 0    // bootstrap prestige: +$5k starting cash per win
+  bsCashBonus: 0,   // bootstrap prestige: +$5k starting cash per win
+  totalExitValue: 0,   // cumulative bootstrap exit proceeds
+  exitCompanies: []    // company names from each bootstrap exit
 };
 
 let G = {}; // game state
@@ -3132,9 +3216,18 @@ function acceptAcquisition() {
   prestigeData.bsConvBonus += 0.005;   // +0.5% conv per win
   prestigeData.bsCashBonus += 5000;    // +$5k starting cash per win
 
-  // Show win screen reusing IPO overlay with custom content
   const arr = G.mrr * 12;
   const offerAmount = arr * G.acquisitionMultiple;
+  prestigeData.totalExitValue = (prestigeData.totalExitValue || 0) + offerAmount;
+  prestigeData.exitCompanies = prestigeData.exitCompanies || [];
+  prestigeData.exitCompanies.push({ name: G.companyName, value: offerAmount });
+
+  if (prestigeData.bswins >= 3) {
+    showNewsletterEnding();
+    return;
+  }
+
+  // Show win screen reusing IPO overlay with custom content
   document.getElementById('ipo-overlay').querySelector('.ipo-emoji').textContent = '🤝';
   document.getElementById('ipo-overlay').querySelector('.ipo-title').textContent = 'Acquired!';
   document.getElementById('ipo-body').textContent =
@@ -3238,6 +3331,39 @@ function showHallOfFame() {
   document.getElementById('hof-overlay').classList.remove('hidden');
 }
 
+function showNewsletterEnding() {
+  const companies = prestigeData.exitCompanies || [];
+  const total = prestigeData.totalExitValue || 0;
+  const names = ['Bootstrapped &amp; Bougie', 'Profitable by Default', 'No VC Required', 'Zero to Exit'];
+  const nlName = names[Math.floor(Math.random() * names.length)];
+
+  const roasts = [
+    'You\'ve now sold three companies and still refer to yourself as "just building in public."',
+    'Three exits. Zero investors to thank in the post-mortem. Iconic.',
+    'At this point your LinkedIn bio is just acquisition dates.',
+    'You bootstrapped three companies to exit. The VCs who passed are still "evaluating the market."',
+    'Congratulations. Your newsletter will be insufferable and we will all subscribe.'
+  ];
+  const roast = roasts[Math.floor(Math.random() * roasts.length)];
+
+  document.getElementById('nl-name').textContent = `"${nlName}"`;
+  document.getElementById('nl-subtitle').textContent =
+    `A weekly newsletter for founders who never needed anyone else's money.`;
+  document.getElementById('nl-roast').textContent = roast;
+
+  const statsEl = document.getElementById('nl-stats');
+  let exitRows = companies.map(c =>
+    `<div class="stat-row"><span class="stat-key">${c.name}</span><span class="stat-val green">+${fmt(c.value)}</span></div>`
+  ).join('');
+  statsEl.innerHTML = exitRows +
+    `<div class="stat-row" style="border-top:1px solid var(--border2);margin-top:8px;padding-top:8px;">
+      <span class="stat-key">Total Exits</span><span class="stat-val yellow">${fmt(total)}</span>
+    </div>`;
+
+  document.getElementById('newsletter-overlay').classList.remove('hidden');
+  updateBadge();
+}
+
 // ============================================================
 //  GAME OVER
 // ============================================================
@@ -3251,8 +3377,9 @@ function triggerGameOver() {
 function restartGame(keepPrestige = false) {
   document.getElementById('gameover-overlay').classList.add('hidden');
   document.getElementById('hof-overlay').classList.add('hidden');
+  document.getElementById('newsletter-overlay').classList.add('hidden');
   if (!keepPrestige) {
-    prestigeData = { ipos: 0, bswins: 0, clickMult: 1, revMult: 1, convBonus: 0, bsConvBonus: 0, bsCashBonus: 0 };
+    prestigeData = { ipos: 0, bswins: 0, clickMult: 1, revMult: 1, convBonus: 0, bsConvBonus: 0, bsCashBonus: 0, totalExitValue: 0, exitCompanies: [] };
   }
   updateBadge();
   startGame();
