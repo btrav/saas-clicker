@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>SaaS Clicker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -909,7 +909,8 @@
     background: var(--bg2);
     border-top: 1px solid var(--border);
     z-index: 80;
-    height: 56px;
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   #mobile-tabs .tab-bar {
@@ -948,6 +949,8 @@
       overflow: hidden;
       position: relative;
       flex: 1;
+      /* shrink so panels don't extend behind the tab bar — prevents touch swallowing */
+      padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px));
     }
 
     .panel {
@@ -955,7 +958,7 @@
       height: 100%;
       overflow-y: auto;
       border-right: none;
-      padding-bottom: 64px; /* room for tab bar */
+      padding-bottom: 12px;
     }
 
     .panel.tab-active { display: flex; }
@@ -984,7 +987,7 @@
     .upgrade-name { font-size: 13px; }
 
     /* Notification bottom offset above tab bar */
-    #notif-container { bottom: 66px; }
+    #notif-container { bottom: calc(66px + env(safe-area-inset-bottom, 0px)); }
     #footer-credit { display: none; }
 
     /* Term sheets stack on mobile */
