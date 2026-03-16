@@ -75,8 +75,10 @@ All rounds now gated at meaningful scale. First two are intentionally low-ball:
 - Used by: Product Hunt Launch (10s → user burst + 60s click spike via addEffect), Podcast Sponsorship (30s → user burst + 90s autoRate spike via addEffect)
 
 ## Prestige System
-- VC path: 3 IPOs max → Hall of Fame; each adds revenue/click/conv multipliers
-- Bootstrap path: acquisition exit → bswins prestige; adds conv bonus + starting cash
+- VC path: 3 IPOs max → Hall of Fame (`showHallOfFame()`); each IPO adds revenue/click/conv multipliers
+- Bootstrap path: acquisition exit → `bswins` prestige; adds +0.5% conv and +$5k starting cash per win
+- Bootstrap 3-win ending: `showNewsletterEnding()` — randomized newsletter name, roast line, exit history table; triggered from `acceptAcquisition()` when `bswins >= 3`
+- `prestigeData` fields: `ipos`, `bswins`, `clickMult`, `revMult`, `convBonus`, `bsConvBonus`, `bsCashBonus`, `totalExitValue`, `exitCompanies[]`
 
 ## Company Names (25 total)
 Satirical tech company parodies. Current pool includes: Flack, Noshun, Zoombomb, Stripclub, Intercram, Mailchump, JirAAAA, Figmeh, GitHubris, Snowjob, ZenDesk Jockey, Webflop, Cluck-Up, Moanday, Asinine, AirBnTable, Workaday, Linearly, OpenlyAI, Perplexed, Calenduh, DocuSigh, Salesfarce, Confusence, Dropbucks.
