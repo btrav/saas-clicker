@@ -2876,13 +2876,15 @@ function pickRandom(arr) {
 
 function recalcARPU() {
   if (!G.plansUnlocked.basic) { G.arpu = 0; return; }
+  // Plan prices: Basic $29/mo, Pro $99/mo, Enterprise $500/mo
+  // Weighted average across the current plan distribution
   let arpu = 0;
   if (G.plansUnlocked.enterprise) {
     arpu = G.planDist.basic * 29 + G.planDist.pro * 99 + G.planDist.enterprise * 500;
   } else if (G.plansUnlocked.pro) {
     arpu = G.planDist.basic * 29 + G.planDist.pro * 99;
   } else {
-    arpu = 29;
+    arpu = 29; // Only Basic plan available
   }
   // Bootstrap annual plan discount: -15% ARPU
   if (G.bsAnnualPlanActive) arpu *= 0.85;
@@ -2890,7 +2892,8 @@ function recalcARPU() {
 }
 
 function addEffect(id, label, duration, onStart, onEnd) {
-  // Remove existing effect with same id
+  // If the same effect is already active, cancel it first (call onEnd to reverse its
+  // stat changes) before re-applying — prevents double-stacking the same bonus.
   const existing = G.activeEffects.findIndex(e => e.id === id);
   if (existing >= 0) {
     G.activeEffects[existing].onEnd();
@@ -2992,18 +2995,21 @@ function gameTick() {
 
   // -- Paying user conversion --
   const targetPaying = Math.floor(G.totalUsers * G.convRate);
-  // Only smooth upward — churn handles downward pressure
+  // Only smooth upward — churn handles downward pressure separately.
+  // The factor (0.05 * dt * 10) is a lerp speed: ~5% of the gap closes per tick at 10 ticks/sec.
   if (G.payingUsers < targetPaying) {
     G.payingUsers += (targetPaying - G.payingUsers) * 0.05 * dt * 10;
   }
   G.payingUsers = Math.max(0, Math.min(G.payingUsers, G.totalUsers));
 
   // -- Churn (applied to paying users) --
+  // Convert monthly churn rate to a per-second rate, then scale by elapsed time.
   const monthlyChurn = G.churnRate;
   const churnPerSec = monthlyChurn / SECS_PER_MONTH;
   const churned = G.payingUsers * churnPerSec * dt;
   G.payingUsers = Math.max(0, G.payingUsers - churned);
-  // Total users churn too (slightly less)
+  // Total users churn too, at 1.5× the paying churn rate (free users leave faster than paying).
+  // Clamped so totalUsers never drops below payingUsers.
   G.totalUsers = Math.max(G.payingUsers, G.totalUsers - churned * 1.5);
 
   // -- MRR calc --
@@ -3053,9 +3059,11 @@ function gameTick() {
   }
 
   // -- Win condition checks --
-  checkFundingTriggers(); // funding rounds available regardless of path
+  // Funding rounds are always checked — the player can take VC money from any path.
+  checkFundingTriggers();
+  // Acquisition is only available while fully equity-free; giving up equity forecloses this exit.
   if (G.investorEquity === 0) {
-    checkAcquisitionTrigger(); // acquisition only available while equity-free
+    checkAcquisitionTrigger();
   }
 
   // -- Check random events (MRR milestone-based, only after 5k users) --
@@ -3190,6 +3198,8 @@ function doConsultingGig() {
 // ============================================================
 function checkAcquisitionTrigger() {
   if (G.acquisitionTriggered || isModalOpen()) return;
+  // Base threshold is $50k MRR; rises by 20% each time the player declines an offer
+  // (see declineAcquisition). This escalates the ask without blocking progress.
   const threshold = G.acquisitionMrrThreshold || 50000;
   if (G.mrr >= threshold && G.cash > 0 && G.investorEquity === 0) {
     G.acquisitionTriggered = true;
@@ -3294,6 +3304,9 @@ function doPrestige() {
 
 function resetForPrestige() {
   initGame();
+  // Apply all prestige conversion bonuses to the base convRate at the start of every run.
+  // bsConvBonus is baked in unconditionally here — the render function adjusts the
+  // *display* based on path, but the stat itself is always boosted.
   G.convRate += prestigeData.convBonus + prestigeData.bsConvBonus;
   const _c = pickRandom(COMPANIES);
   G.companyName = _c.name; G.companyEmoji = _c.emoji; G.companyDesc = _c.desc;
@@ -3518,6 +3531,8 @@ function renderUpgrades() {
       if (u.vcOnly && G.path !== 'vc') return false;
       return true;
     });
+    // Show all unlocked (or already-purchased) upgrades, plus exactly one locked "teaser"
+    // so the player can see what's coming next without being overwhelmed by the full list.
     const visible = pathFiltered.filter(u => isUpgradeVisible(u) || G.purchased[u.id]);
     const nextLocked = pathFiltered.find(u => !isUpgradeVisible(u) && !G.purchased[u.id]);
 
@@ -3748,6 +3763,8 @@ function render() {
       document.getElementById('milestone-title').textContent = 'Next: ' + nextRound.label;
       let prog = 0;
       let rightLabel = fmtNum(nextRound.triggerUsers) + ' users';
+      // Funding rounds have two gates: a user count and an MRR target.
+      // Show user progress first; once the user gate is cleared, switch to tracking MRR.
       if (nextRound.triggerMRR > 0 && G.totalUsers >= nextRound.triggerUsers) {
         prog = Math.min(1, G.mrr / nextRound.triggerMRR);
         rightLabel = fmt(nextRound.triggerMRR) + ' MRR';
