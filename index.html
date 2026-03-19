@@ -730,6 +730,32 @@
     text-align: left;
   }
 
+  /* WHAT YOU DID NEXT — shared style for both endings */
+  .ending-whatnext {
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    text-align: left;
+    line-height: 1.7;
+  }
+  .ending-whatnext-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text3);
+    margin-bottom: 5px;
+  }
+  .ending-whatnext-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .ending-whatnext-body {
+    font-size: 12px;
+    color: var(--text2);
+  }
+
   /* IPO SCREEN */
   #ipo-overlay {
     position: fixed;
@@ -1559,6 +1585,7 @@
     <div class="nl-name" id="nl-name">"Bootstrapped & Bougie"</div>
     <div class="nl-subtitle" id="nl-subtitle"></div>
     <div class="nl-roast" id="nl-roast"></div>
+    <div class="ending-whatnext" id="nl-whatnext"></div>
     <div class="nl-stats" id="nl-stats"></div>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
       <button class="btn btn-gold" onclick="restartGame(true)" style="flex:1;min-width:180px;">Start Fresh (Keep Legend Status)</button>
@@ -1571,7 +1598,8 @@
   <div class="hof-modal">
     <div class="hof-emoji">🏆</div>
     <div class="hof-title">Hall of Fame</div>
-    <div class="hof-body">You've built three world-class companies from nothing. You are a legendary entrepreneur.</div>
+    <div class="hof-body">Three companies. Three IPOs. You are, by any reasonable definition, a problem.</div>
+    <div class="ending-whatnext" id="hof-whatnext" style="margin-bottom:20px;"></div>
     <div class="hof-stats" id="hof-stats"></div>
     <button class="btn btn-gold w-full" onclick="restartGame(true)">Start Fresh (Keep Legend Status)</button>
   </div>
@@ -3332,7 +3360,27 @@ function updateBadge() {
   }
 }
 
+const IPO_SCENARIOS = [
+  { title: 'CEO Coach', body: 'You launch a coaching practice called something like "Founder Thinking." You have a methodology. You have a deck. Nobody finishes the deck.' },
+  { title: 'Board Member (×5)', body: 'You join five boards. You say "what\'s the moat?" at every meeting. Eventually they stop inviting you to the off-sites. You are not told why.' },
+  { title: 'The Podcast', body: 'It\'s called something with "deep" or "long" in the title. Your first episode is you, "telling the full story." It\'s 94 minutes. Your guests are all people who owe you a favor.' },
+  { title: 'The Book', body: 'It\'s called something like Default Brave. The subtitle has the word "mindset" in it. The acknowledgments thank "the journey." The journey did not ask to be thanked.' },
+  { title: 'Angel Investor', body: 'You write $25k checks and say "I don\'t lead rounds" until you do. You are on 47 cap tables. Two of them will matter. You will take credit for all 47.' },
+  { title: 'The TED Talk', body: 'Sixteen minutes about an Uber ride where you "almost quit everything." The crowd gives a standing ovation. You earned it, unfortunately.' },
+  { title: 'Moved to Austin', body: 'You moved to Austin. You tell people about Austin.' },
+  { title: 'LinkedIn Posting', body: 'You post every day. Last Tuesday you compared your marriage to a Series A. The metaphor was painful and specific. Forty-three thousand people liked it.' },
+  { title: 'Biohacking Era', body: 'Your morning routine takes three hours. You track HRV, glucose, and sleep latency. You\'ve been doing this for two years. The numbers are not improving. You are not slowing down.' },
+  { title: 'The Boat', body: 'You bought a boat. The boat has structural issues. The boat is the first thing in ten years you cannot iterate on. The boat is winning.' },
+];
+
 function showHallOfFame() {
+  const scenario = pickRandom(IPO_SCENARIOS);
+  document.getElementById('hof-whatnext').innerHTML = `
+    <div class="ending-whatnext-label">What you did next</div>
+    <div class="ending-whatnext-title" style="color:var(--yellow);">${scenario.title}</div>
+    <div class="ending-whatnext-body">${scenario.body}</div>
+  `;
+
   const hofStats = document.getElementById('hof-stats');
   hofStats.innerHTML = `
     <div class="stat-row"><span class="stat-key">Companies Built</span><span class="stat-val yellow">3</span></div>
@@ -3344,10 +3392,23 @@ function showHallOfFame() {
   document.getElementById('hof-overlay').classList.remove('hidden');
 }
 
+const BS_SCENARIOS = [
+  { title: 'Alpacas', body: 'You buy eleven alpacas. They are difficult and expensive and occasionally aggressive. You love them in a way you cannot explain to anyone who has not owned alpacas.' },
+  { title: 'Woodworking', body: 'You take up woodworking. You make one perfect cutting board. You give it to your mother. You never make another one. It\'s enough.' },
+  { title: 'Landscape Photography', body: 'You have a show at a gallery a friend owns. You paid for the framing yourself. The artist statement is one sentence. The wine is excellent.' },
+  { title: 'Sailing', body: 'You learn to sail. You are genuinely bad at it. This is the first thing you\'ve been bad at in a decade. It is, surprisingly, a relief.' },
+  { title: 'The Coffee Shop', body: 'You open a small coffee shop in a small town. It breaks even. You describe it as "the best thing I\'ve ever built" at a dinner party. You mean it. Nobody believes you.' },
+  { title: 'The Triathlon', body: 'You train for eight months, finish one triathlon, buy a carbon fiber bike you will ride eleven times. One of those rides will be transcendent. The bike costs more than your first office.' },
+  { title: 'The Gap Year(s)', body: 'You take a gap year. It becomes three. You stop explaining it at dinner parties. People stop asking. This is the correct outcome.' },
+  { title: 'Teaching', body: 'You teach a community college entrepreneurship class. Your students are 19. One of them reminds you of yourself. This is uncomfortable in ways you will think about for a long time.' },
+  { title: 'Sourdough', body: 'You give loaves to neighbors who did not ask. You consider selling them at the farmers market. You almost do. The spreadsheet makes sense. You don\'t do it. You almost do.' },
+  { title: 'The Memoir', body: 'You write a memoir. Your editor asks you to cut the chapter about churn rate. You fight for it. You lose. You are still not over it.' },
+];
+
 function showNewsletterEnding() {
   const companies = prestigeData.exitCompanies || [];
   const total = prestigeData.totalExitValue || 0;
-  const names = ['Bootstrapped &amp; Bougie', 'Profitable by Default', 'No VC Required', 'Zero to Exit'];
+  const names = ['Bootstrapped &amp; Bougie', 'Profitable by Default', 'No VC Required', 'Zero to Exit', 'Default Alive, Actually', 'The Ramen Billionaire', 'Compounding Slowly', 'Exit Interview', 'Cap Table of One'];
   const nlName = names[Math.floor(Math.random() * names.length)];
 
   const roasts = [
@@ -3355,14 +3416,27 @@ function showNewsletterEnding() {
     'Three exits. Zero investors to thank in the post-mortem. Iconic.',
     'At this point your LinkedIn bio is just acquisition dates.',
     'You bootstrapped three companies to exit. The VCs who passed are still "evaluating the market."',
-    'Congratulations. Your newsletter will be insufferable and we will all subscribe.'
+    'Congratulations. Your newsletter will be insufferable and we will all subscribe.',
+    'Three exits. Zero pitch decks. You will spend the next decade telling people it\'s possible and they will not believe you.',
+    'You bootstrapped three companies to acquisition. Your cap table is one line. That line is you.',
+    'At this point you\'ve sold more companies than most founders have shipped features.',
+    'The VCs who passed on you are now writing "lessons learned" threads. You\'re the lesson.',
+    'You didn\'t just build in public — you exited in public. Three times. The audience is annoyed and also subscribed.',
+    'No investors, no board, no co-founder drama. Just you, a text editor, and increasingly good instincts.',
   ];
   const roast = roasts[Math.floor(Math.random() * roasts.length)];
+
+  const scenario = pickRandom(BS_SCENARIOS);
 
   document.getElementById('nl-name').textContent = `"${nlName}"`;
   document.getElementById('nl-subtitle').textContent =
     `A weekly newsletter for founders who never needed anyone else's money.`;
   document.getElementById('nl-roast').textContent = roast;
+  document.getElementById('nl-whatnext').innerHTML = `
+    <div class="ending-whatnext-label">What you did next</div>
+    <div class="ending-whatnext-title" style="color:var(--green);">${scenario.title}</div>
+    <div class="ending-whatnext-body">${scenario.body}</div>
+  `;
 
   const statsEl = document.getElementById('nl-stats');
   let exitRows = companies.map(c =>
