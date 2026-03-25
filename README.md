@@ -25,7 +25,7 @@
 
 A clicker game that judges you.
 
-You're a founder. Pick a name — maybe **Confusence**, maybe **Stripclub**, maybe **DocuSigh** — acquire your first users, watch churn eat into MRR, and decide whether to take a VC term sheet or stay equity-free. Bootstrap your way to acquisition or ride the funding treadmill all the way to IPO. Either way, there's a prestige bonus waiting on the other side.
+You're a founder. Pick a name (maybe **Confusence**, maybe **Figmeh**, maybe **DocuSigh**), acquire your first users, watch churn eat into MRR, and decide whether to take a VC term sheet or stay equity-free. Bootstrap your way to acquisition or ride the funding treadmill all the way to IPO. Either way, there's a prestige bonus waiting on the other side.
 
 > *Acquiring users costs nothing. Enterprise plans are $500/mo. This is both a game mechanic and an accurate description of the SaaS industry.*
 
