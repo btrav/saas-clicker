@@ -2,7 +2,7 @@
 
 ```
   ╔══════════════════════════════════════════════╗
-  ║  COMPANY   Stripclub          STAGE   Seed   ║
+  ║  COMPANY   Salesfarce         STAGE   Seed   ║
   ║  MRR       $142,800           BURN    $31k   ║
   ║  USERS     48,293             CHURN   2.1%   ║
   ║  RUNWAY    4.6 mo             EQUITY  18%    ║
