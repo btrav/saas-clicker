@@ -1747,6 +1747,11 @@ function initGame() {
     acquisitionMultiple: 0,      // the X in X*ARR offer
     infraWarned: false           // whether the 10k infra warning has fired
   };
+  // Reset per-run mutations on the global UPGRADES array.
+  // pivot_rebrand doubles its cost each buy; without this, a doubled cost
+  // would persist across prestige into the next run.
+  const pivot = UPGRADES.find(u => u.id === 'pivot_rebrand');
+  if (pivot) pivot.cost = 3000;
 }
 
 // ============================================================
@@ -2859,7 +2864,9 @@ const RANDOM_EVENTS = [
         onChoose: () => {
           const gained = Math.max(200, Math.floor(G.totalUsers * 0.20));
           G.totalUsers += gained;
-          addEffect('partnership', 'Revenue Share', 60, () => { G.arpu *= 0.7; }, () => { recalcARPU(); });
+          addEffect('partnership', 'Revenue Share', 60,
+            () => { G.partnershipActive = true; },
+            () => { G.partnershipActive = false; });
           notify(`Partnership signed! +${gained} users.`, 'success');
           logEvent(`Partnership: +${gained} users, -30% ARPU for 60s.`);
         }
@@ -2916,6 +2923,9 @@ function recalcARPU() {
   }
   // Bootstrap annual plan discount: -15% ARPU
   if (G.bsAnnualPlanActive) arpu *= 0.85;
+  // Strategic Partnership: -30% ARPU while active. Routed through a flag because
+  // recalcARPU runs every tick and would otherwise overwrite a direct G.arpu *= 0.7.
+  if (G.partnershipActive) arpu *= 0.7;
   G.arpu = arpu;
 }
 
@@ -2989,7 +2999,13 @@ const SECS_PER_DAY = SECS_PER_MONTH / 30; // 2 real seconds = 1 game day
 
 function gameTick() {
   if (G.gameOver || G.ipoTriggered || G.acquisitionTriggered) return;
-  if (!document.getElementById('path-overlay').classList.contains('hidden')) return;
+  // Pause while any modal is open so churn and cash drain don't keep running
+  // while the player is reading a term sheet or random event. Update lastTick
+  // so dt doesn't explode on resume.
+  if (isModalOpen()) {
+    G.lastTick = Date.now();
+    return;
+  }
 
   const now = Date.now();
   const dt = Math.min((now - G.lastTick) / 1000, 0.5); // seconds, capped
@@ -3140,10 +3156,14 @@ function checkFundingTriggers() {
   const round = FUNDING_ROUNDS[nextRoundIdx];
   const payingOk = !round.triggerPayingUsers || Math.round(G.payingUsers) >= round.triggerPayingUsers;
   if (G.totalUsers >= round.triggerUsers && G.mrr >= round.triggerMRR && payingOk) {
-    G.fundingLocked = true;
     if (round.isIPO) {
+      // IPO is the VC ending. Bootstrap players (who passed every round) reach
+      // acquisition instead — don't fire IPO or lock funding for them.
+      if (G.path !== 'vc') return;
+      G.fundingLocked = true;
       triggerIPO();
     } else {
+      G.fundingLocked = true;
       showFundingModal(nextRoundIdx);
     }
   }
