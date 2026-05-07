@@ -1,10 +1,17 @@
-# SaaS Clicker — Project Context
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## What This Is
 A single-file browser clicker/idle game (`index.html`) with no dependencies. Players build a SaaS startup: acquire users, convert them to paying customers, manage churn, and either bootstrap to acquisition or take VC funding toward an IPO. Tone is cheeky and satirical.
 
 ## File Structure
 Everything is in `/Users/Ben/Projects/saas-clicker/index.html` — HTML, CSS, and JS all in one file. No build step.
+
+## Running & Testing
+- No build, no install, no test suite. Open `index.html` directly in a browser.
+- To test changes: refresh the tab. State does not persist between sessions, so every reload is a fresh run.
+- Manual QA only. For mechanic changes, exercise both paths (bootstrap acquisition + VC/IPO) and the infra-wall transition at 9k–10k users.
 
 ## Core Architecture
 
