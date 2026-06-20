@@ -797,6 +797,28 @@
     line-height: 1.6;
   }
 
+  .ipo-payout {
+    background: var(--bg3);
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    text-align: left;
+  }
+  .ipo-payout .pay-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 12px; color: var(--text2); padding: 3px 0;
+  }
+  .ipo-payout .pay-row .pay-val { font-family: var(--mono); color: var(--text); }
+  .ipo-payout .pay-cut {
+    border-top: 1px solid var(--border2); margin-top: 6px; padding-top: 8px;
+    font-size: 15px; font-weight: 700; color: var(--green);
+  }
+  .ipo-payout .pay-cut .pay-val { color: var(--green); font-size: 18px; }
+  .ipo-payout .pay-counter {
+    font-size: 11px; color: var(--text3); margin-top: 6px; font-style: italic;
+  }
+
   .ipo-bonus {
     background: var(--bg3);
     border: 1px solid var(--yellow);
@@ -1134,6 +1156,66 @@
 
   #path-overlay.hidden { display: none; }
 
+  /* ---- Company Collection ---- */
+  #collection-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,10,15,0.55);
+    display: flex; align-items: flex-start; justify-content: center;
+    z-index: 600; backdrop-filter: blur(4px) brightness(0.7);
+    padding: 24px 0; overflow-y: auto;
+  }
+  #collection-overlay.hidden { display: none; }
+  .collection-modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 18px;
+    padding: 22px;
+    max-width: 720px; width: 94%;
+    max-height: calc(100dvh - 48px); overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
+  .collection-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .collection-title { font-size: 18px; font-weight: 700; color: var(--text); }
+  .collection-sub { font-size: 12px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+  .collection-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px;
+  }
+  .coll-card {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px; text-align: center; min-height: 78px;
+    display: flex; flex-direction: column; justify-content: center; gap: 3px;
+  }
+  .coll-card.found { border-color: var(--border2); }
+  .coll-card.found .coll-emoji { filter: none; }
+  .coll-card.secret.found { border-color: var(--yellow); box-shadow: 0 0 0 1px var(--yellow) inset; }
+  .coll-emoji { font-size: 24px; }
+  .coll-card.locked .coll-emoji { filter: grayscale(1) brightness(0.5); opacity: 0.5; }
+  .coll-name { font-size: 12px; font-weight: 700; color: var(--text); }
+  .coll-card.locked .coll-name { color: var(--text3); }
+  .coll-desc { font-size: 10px; color: var(--text3); line-height: 1.3; }
+
+  /* ---- Career card (shown on endings) ---- */
+  .career-card {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px;
+    padding: 12px 14px; margin: 16px 0; text-align: left;
+  }
+  .career-card .cc-title {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text3); margin-bottom: 8px;
+  }
+  .career-card .cc-row {
+    display: flex; justify-content: space-between; font-size: 12px;
+    color: var(--text2); padding: 2px 0;
+  }
+  .career-card .cc-row .cc-val { font-family: var(--mono); color: var(--text); }
+  .career-card .cc-endings { margin-top: 8px; font-size: 16px; letter-spacing: 4px; }
+  .career-card .cc-endings .dim { filter: grayscale(1); opacity: 0.3; }
+
+  #start-career-summary {
+    font-size: 12px; color: var(--text3); font-family: var(--mono);
+    margin-top: 14px; min-height: 16px;
+  }
+
   .path-modal {
     background: var(--bg2);
     border: 1px solid var(--border2);
@@ -1390,7 +1472,7 @@
 
         <button id="click-btn" onclick="handleClick(event)">
           <div>📣 Acquire User</div>
-          <div id="click-btn-sub" class="click-btn-sub">+<span id="click-power-display">1</span> user per click</div>
+          <div id="click-btn-sub" class="click-btn-sub">+<span id="click-power-display">1</span> user per click<span id="click-surge-display"></span></div>
         </button>
       </div>
 
@@ -1560,7 +1642,9 @@
     <div class="ipo-emoji">🚀</div>
     <div class="ipo-title">IPO Achieved!</div>
     <div class="ipo-body" id="ipo-body">Your company has gone public! The market values your company and you walk away with a permanent multiplier bonus.</div>
+    <div class="ipo-payout" id="ipo-payout"></div>
     <div class="ipo-bonus" id="ipo-bonus">+50% Revenue Multiplier for all future runs</div>
+    <div class="career-card" id="ipo-career"></div>
     <button class="btn btn-gold w-full" onclick="doPrestige()">Ring the Bell & Start New Company</button>
   </div>
 </div>
@@ -1571,6 +1655,7 @@
     <div class="gameover-emoji">💀</div>
     <div class="gameover-title">Startup Failed</div>
     <div class="gameover-body" id="gameover-body">You ran out of cash. The team has moved on and the servers are dark.</div>
+    <div class="career-card" id="gameover-career"></div>
     <div style="display:flex;gap:10px;justify-content:center;">
       <button class="btn btn-primary" onclick="restartGame()">Try Again</button>
     </div>
@@ -1587,6 +1672,7 @@
     <div class="nl-roast" id="nl-roast"></div>
     <div class="ending-whatnext" id="nl-whatnext"></div>
     <div class="nl-stats" id="nl-stats"></div>
+    <div class="career-card" id="nl-career"></div>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
       <button class="btn btn-gold" onclick="restartGame(true)" style="flex:1;min-width:180px;">Start Fresh (Keep Legend Status)</button>
     </div>
@@ -1601,6 +1687,7 @@
     <div class="hof-body">Three companies. Three IPOs. You are, by any reasonable definition, a problem.</div>
     <div class="ending-whatnext" id="hof-whatnext" style="margin-bottom:20px;"></div>
     <div class="hof-stats" id="hof-stats"></div>
+    <div class="career-card" id="hof-career"></div>
     <button class="btn btn-gold w-full" onclick="restartGame(true)">Start Fresh (Keep Legend Status)</button>
   </div>
 </div>
@@ -1613,6 +1700,25 @@
     <h2>🚀 Build Your Startup</h2>
     <p style="color:var(--text2);margin-bottom:20px;">You start with a Basic plan and $5k in savings. When investors come calling, you can take their money — or pass and keep 100% equity. Your call, every time.</p>
     <button class="btn btn-primary w-full" onclick="startGame()" style="font-size:15px;padding:14px;">Start Company</button>
+    <div id="start-career-summary"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button class="btn" style="flex:1;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:12px;" onclick="openCollection()">📇 Company Collection</button>
+      <button class="btn" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text3);font-size:12px;" onclick="resetCareer()" title="Erase your entire career">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPANY COLLECTION -->
+<div id="collection-overlay" class="hidden">
+  <div class="collection-modal">
+    <div class="collection-head">
+      <div>
+        <div class="collection-title">Company Collection</div>
+        <div class="collection-sub" id="collection-count">0 / 25 discovered</div>
+      </div>
+      <button class="btn" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-size:12px;" onclick="closeCollection()">Close</button>
+    </div>
+    <div class="collection-grid" id="collection-grid"></div>
   </div>
 </div>
 
@@ -1677,17 +1783,80 @@ const COMPANIES = [
 const STAGE_EMOJIS = ['🌱','🌿','🏗️','🏢','🚀','🦄'];
 const STAGE_LABELS = ['Idea Stage','Early Startup','Scaling','Growth Stage','Hypergrowth','Unicorn'];
 
-let prestigeData = {
-  ipos: 0,
-  bswins: 0,        // bootstrap acquisition wins
-  clickMult: 1,
-  revMult: 1,
-  convBonus: 0,
-  bsConvBonus: 0,   // bootstrap prestige: +0.5% conv per win
-  bsCashBonus: 0,   // bootstrap prestige: +$5k starting cash per win
-  totalExitValue: 0,   // cumulative bootstrap exit proceeds
-  exitCompanies: []    // company names from each bootstrap exit
-};
+// Default cross-run / career state. prestigeData IS the persisted career object:
+// the per-run state (G) stays ephemeral and dies on reload, but this survives
+// across sessions via localStorage (see saveCareer/loadCareer).
+function freshPrestigeData() {
+  return {
+    ipos: 0,
+    bswins: 0,        // bootstrap acquisition wins
+    clickMult: 1,
+    revMult: 1,
+    convBonus: 0,
+    bsConvBonus: 0,   // bootstrap prestige: +0.5% conv per win
+    bsCashBonus: 0,   // bootstrap prestige: +$5k starting cash per win
+    totalExitValue: 0,   // cumulative bootstrap exit proceeds (newsletter ending)
+    exitCompanies: [],   // company names from each bootstrap exit (newsletter ending)
+    // ---- Career / metagame (persisted) ----
+    companiesFounded: 0,            // runs actually started
+    namesDiscovered: {},            // company name -> true, for the collection board
+    exits: [],                      // unified exit history: {name, type, value, equityKept}
+    endingsSeen: { newsletter: false, halloffame: false, secret: false },
+    bestExit: 0,                    // largest single founder payout
+    lifetimeValue: 0,               // sum of all founder payouts across every exit
+    secretUnlocked: false           // all 25 names discovered
+  };
+}
+
+const CAREER_KEY = 'saas-clicker-career-v1';
+
+function saveCareer() {
+  try { localStorage.setItem(CAREER_KEY, JSON.stringify(prestigeData)); } catch (e) {}
+}
+
+function loadCareer() {
+  try {
+    const raw = localStorage.getItem(CAREER_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    // Merge onto a fresh default so older saves missing newer fields still work.
+    prestigeData = Object.assign(freshPrestigeData(), saved);
+    if (!prestigeData.endingsSeen) prestigeData.endingsSeen = { newsletter: false, halloffame: false, secret: false };
+    if (!prestigeData.namesDiscovered) prestigeData.namesDiscovered = {};
+    if (!Array.isArray(prestigeData.exits)) prestigeData.exits = [];
+  } catch (e) {}
+}
+
+// Record a completed exit into the persisted career and refresh derived stats.
+function recordExit(name, type, value, equityKept) {
+  prestigeData.exits = prestigeData.exits || [];
+  prestigeData.exits.push({ name, type, value, equityKept });
+  prestigeData.lifetimeValue = (prestigeData.lifetimeValue || 0) + value;
+  if (value > (prestigeData.bestExit || 0)) prestigeData.bestExit = value;
+  // Exiting with the secret company is its own one-time achievement.
+  if (name === 'Unicorpse') {
+    prestigeData.endingsSeen = prestigeData.endingsSeen || {};
+    prestigeData.endingsSeen.secret = true;
+  }
+  saveCareer();
+}
+
+// Mark the current run's company name as discovered. Returns true if newly found.
+function discoverCompany(name) {
+  prestigeData.namesDiscovered = prestigeData.namesDiscovered || {};
+  const isNew = !prestigeData.namesDiscovered[name];
+  prestigeData.namesDiscovered[name] = true;
+  const count = Object.keys(prestigeData.namesDiscovered).length;
+  if (count >= COMPANIES.length) prestigeData.secretUnlocked = true;
+  if (isNew) saveCareer();
+  return isNew;
+}
+
+function discoveredCount() {
+  return Object.keys(prestigeData.namesDiscovered || {}).length;
+}
+
+let prestigeData = freshPrestigeData();
 
 let G = {}; // game state
 
@@ -1745,7 +1914,12 @@ function initGame() {
     consultingDistraction: false,
     acquisitionTriggered: false,
     acquisitionMultiple: 0,      // the X in X*ARR offer
-    infraWarned: false           // whether the 10k infra warning has fired
+    infraWarned: false,          // whether the 10k infra warning has fired
+    // Active-click boost: rapid clicking builds a short autoRate surge so the
+    // core verb stays meaningful at scale instead of going vestigial mid-game.
+    clickBoostStacks: 0,
+    clickBoostT: 0,              // seconds remaining on the current surge
+    effectiveChurn: 0.10         // churnRate + stage penalty, for display
   };
   // Reset per-run mutations on the global UPGRADES array.
   // pivot_rebrand doubles its cost each buy; without this, a doubled cost
@@ -2964,10 +3138,16 @@ function logEvent(msg) {
 //  CLICK HANDLER
 // ============================================================
 function handleClick(e) {
+  if (isModalOpen()) return; // don't register clicks bleeding through an open modal
   const atInfraWall = !G.purchased['cloud_basic'] && G.totalUsers >= 9000;
   const rawPower = G.clickPower * prestigeData.clickMult;
   const power = atInfraWall ? Math.floor(rawPower * 0.08) : Math.ceil(rawPower);
   G.totalUsers += power;
+
+  // Build the active-click surge: each click adds a stack and refreshes the window.
+  // Stacks boost autoRate (applied in gameTick), so clicking accelerates your engine.
+  G.clickBoostStacks = Math.min(CLICK_BOOST_MAX_STACKS, G.clickBoostStacks + 1);
+  G.clickBoostT = CLICK_BOOST_WINDOW;
 
   // Flash Total Users stat row for the first 100 users
   if (G.totalUsers < 100) {
@@ -2997,6 +3177,16 @@ const TICK_MS = 100; // 10 ticks/second
 const SECS_PER_MONTH = 60; // 1 real minute = 1 game month
 const SECS_PER_DAY = SECS_PER_MONTH / 30; // 2 real seconds = 1 game day
 
+// Churn floor that rises with company stage. Even fully-upgraded churn can't be
+// zeroed at scale — bigger companies leak more, so keeping paying users is a
+// continuous balance against conversion, not a one-time checkbox. Draft values.
+const STAGE_CHURN_PENALTY = [0, 0, 0.005, 0.01, 0.018, 0.028]; // by G.stage (0..5)
+
+// Active-click surge tuning.
+const CLICK_BOOST_PER_STACK = 0.08;  // +8% autoRate per recent click
+const CLICK_BOOST_MAX_STACKS = 10;   // capped at +80%
+const CLICK_BOOST_WINDOW = 2;        // seconds; refreshed on every click
+
 function gameTick() {
   if (G.gameOver || G.ipoTriggered || G.acquisitionTriggered) return;
   // Pause while any modal is open so churn and cash drain don't keep running
@@ -3017,10 +3207,17 @@ function gameTick() {
     G.consultingCooldown = Math.max(0, G.consultingCooldown - dt);
   }
 
-  // -- Auto users (with distraction debuff + infra throttle near 10k) --
+  // -- Click surge decay: stacks persist while you keep clicking, then expire --
+  if (G.clickBoostT > 0) {
+    G.clickBoostT = Math.max(0, G.clickBoostT - dt);
+    if (G.clickBoostT === 0) G.clickBoostStacks = 0;
+  }
+
+  // -- Auto users (with distraction debuff + infra throttle near 10k + click surge) --
   if (G.autoRate > 0) {
     const atInfraWall = !G.purchased['cloud_basic'] && G.totalUsers >= 9000;
-    const autoMult = (G.consultingDistraction ? 0.7 : 1.0) * (atInfraWall ? 0.08 : 1.0);
+    const surgeMult = 1 + G.clickBoostStacks * CLICK_BOOST_PER_STACK;
+    const autoMult = (G.consultingDistraction ? 0.7 : 1.0) * (atInfraWall ? 0.08 : 1.0) * surgeMult;
     G.totalUsers += G.autoRate * autoMult * dt;
   }
 
@@ -3048,7 +3245,8 @@ function gameTick() {
 
   // -- Churn (applied to paying users) --
   // Convert monthly churn rate to a per-second rate, then scale by elapsed time.
-  const monthlyChurn = G.churnRate;
+  const monthlyChurn = G.churnRate + (STAGE_CHURN_PENALTY[G.stage] || 0);
+  G.effectiveChurn = monthlyChurn;
   const churnPerSec = monthlyChurn / SECS_PER_MONTH;
   const churned = G.payingUsers * churnPerSec * dt;
   G.payingUsers = Math.max(0, G.payingUsers - churned);
@@ -3279,6 +3477,8 @@ function acceptAcquisition() {
   prestigeData.totalExitValue = (prestigeData.totalExitValue || 0) + offerAmount;
   prestigeData.exitCompanies = prestigeData.exitCompanies || [];
   prestigeData.exitCompanies.push({ name: G.companyName, value: offerAmount });
+  // Unified career record. Bootstrap exits keep 100% — that's the whole pitch.
+  recordExit(G.companyName, 'acquisition', offerAmount, 1);
 
   if (prestigeData.bswins >= 3) {
     showNewsletterEnding();
@@ -3288,12 +3488,19 @@ function acceptAcquisition() {
   // Show win screen reusing IPO overlay with custom content
   document.getElementById('ipo-overlay').querySelector('.ipo-emoji').textContent = '🤝';
   document.getElementById('ipo-overlay').querySelector('.ipo-title').textContent = 'Acquired!';
+  document.getElementById('ipo-payout').innerHTML = `
+    <div class="pay-row"><span>Acquisition price</span><span class="pay-val">${fmt(offerAmount)}</span></div>
+    <div class="pay-row"><span>Your stake</span><span class="pay-val">100%</span></div>
+    <div class="pay-row pay-cut"><span>Your cut</span><span class="pay-val">${fmt(offerAmount)}</span></div>
+    <div class="pay-counter">No investors. No board. Every dollar is yours.</div>
+  `;
   document.getElementById('ipo-body').textContent =
     `${G.companyName} has been acquired for ${fmt(offerAmount)}. You owned 100% — every dollar is yours. You did it without a single investor.`;
   document.getElementById('ipo-bonus').textContent =
     `Next bootstrap run: +0.5% starting conversion, +$5k starting cash`;
   document.getElementById('ipo-overlay').querySelector('button').textContent = 'Start Your Next Company';
   document.getElementById('ipo-overlay').querySelector('button').onclick = doBootstrapPrestige;
+  renderCareerCard('ipo-career');
   document.getElementById('ipo-overlay').classList.remove('hidden');
   updateBadge();
 }
@@ -3321,15 +3528,39 @@ function doBootstrapPrestige() {
 // ============================================================
 //  IPO / PRESTIGE
 // ============================================================
+const IPO_ARR_MULTIPLE = 12; // public SaaS valuations ~ 8-15x ARR; draft value
+
 function triggerIPO() {
   G.ipoTriggered = true;
   const bonus = prestigeData.ipos === 0 ? 50 : prestigeData.ipos === 1 ? 75 : 100;
+
+  // Valuation = annual revenue x a public-market multiple. Your cut is what's left
+  // after every funding round's dilution. This is the whole point of the VC path:
+  // the equity you gave away to grow faster is subtracted here, in cash.
+  const arr = G.mrr * 12;
+  const valuation = arr * IPO_ARR_MULTIPLE;
+  const founderShare = 1 - G.investorEquity;
+  const founderCut = valuation * founderShare;
+  const undilutedCut = valuation; // what you'd have kept at 0% dilution
+  const givenAway = valuation - founderCut;
+
+  recordExit(G.companyName, 'ipo', founderCut, founderShare);
+
   document.getElementById('ipo-body').textContent =
-    `${G.companyName} has gone public! The market erupts. You ring the bell on the NYSE. Time to build your next company.`;
+    `${G.companyName} has gone public! The market erupts. You ring the bell on the NYSE.`;
+
+  document.getElementById('ipo-payout').innerHTML = `
+    <div class="pay-row"><span>Company valuation</span><span class="pay-val">${fmt(valuation)}</span></div>
+    <div class="pay-row"><span>Your stake</span><span class="pay-val">${(founderShare * 100).toFixed(1)}%</span></div>
+    <div class="pay-row pay-cut"><span>Your cut</span><span class="pay-val">${fmt(founderCut)}</span></div>
+    <div class="pay-counter">At 0% dilution you'd have walked with ${fmt(undilutedCut)}. The rounds cost you ${fmt(givenAway)}.</div>
+  `;
+
   document.getElementById('ipo-bonus').textContent =
     `+${bonus}% Revenue Multiplier & +5% Conversion Bonus for next run`;
+  renderCareerCard('ipo-career');
   document.getElementById('ipo-overlay').classList.remove('hidden');
-  logEvent('IPO achieved! Going public!');
+  logEvent(`IPO! Valued at ${fmt(valuation)}; your ${(founderShare * 100).toFixed(1)}% stake = ${fmt(founderCut)}.`);
 }
 
 function doPrestige() {
@@ -3338,6 +3569,7 @@ function doPrestige() {
   prestigeData.revMult += 0.5;
   prestigeData.convBonus += 0.05;
   prestigeData.clickMult += 0.25;
+  saveCareer();
 
   updateBadge();
 
@@ -3350,19 +3582,60 @@ function doPrestige() {
   startGame();
 }
 
+// The secret 26th company, unlocked by discovering all 25 standard names.
+const SECRET_COMPANY = { name: 'Unicorpse', emoji: '🦄', desc: 'A $4B valuation and a product nobody can describe at parties', secret: true };
+
+// Head-start perks earned by prestige. These are what make run 2 open differently
+// instead of just playing the same with bigger multipliers.
+function applyStartingUnlocks() {
+  const perks = [];
+  // 1st IPO: cloud infrastructure already in place — skip the 10k wall once.
+  if (prestigeData.ipos >= 1) {
+    G.purchased['cloud_basic'] = true;
+    perks.push('Cloud Infrastructure pre-built');
+  }
+  // 1st bootstrap exit: you've done this before — Pro plan ready on day one.
+  if (prestigeData.bswins >= 1) {
+    G.plansUnlocked.pro = true;
+    perks.push('Pro plan unlocked');
+  }
+  // Collection milestone: a reputation that precedes you (passive acquisition).
+  if (discoveredCount() >= 10) {
+    G.autoRate += 2;
+    perks.push('Reputation: +2 users/sec');
+  }
+  return perks;
+}
+
 function resetForPrestige() {
   initGame();
+  prestigeData.companiesFounded = (prestigeData.companiesFounded || 0) + 1;
   // Apply all prestige conversion bonuses to the base convRate at the start of every run.
   // bsConvBonus is baked in unconditionally here — the render function adjusts the
   // *display* based on path, but the stat itself is always boosted.
   G.convRate += prestigeData.convBonus + prestigeData.bsConvBonus;
-  const _c = pickRandom(COMPANIES);
+
+  // Company assignment. Once all 25 names are found, the player gets to run the
+  // secret company once; after that it rotates into the normal pool.
+  let _c;
+  if (prestigeData.secretUnlocked && !prestigeData.endingsSeen.secret) {
+    _c = SECRET_COMPANY;
+  } else if (prestigeData.secretUnlocked) {
+    _c = pickRandom(COMPANIES.concat([SECRET_COMPANY]));
+  } else {
+    _c = pickRandom(COMPANIES);
+  }
   G.companyName = _c.name; G.companyEmoji = _c.emoji; G.companyDesc = _c.desc;
+  if (!_c.secret) discoverCompany(_c.name);
+
+  const perks = applyStartingUnlocks();
+
   renderUpgrades();
   render();
   updateBadge();
   updatePathUI();
   logEvent('New company founded. Prestige bonuses active.');
+  if (perks.length) notify('Career perks active: ' + perks.join(', ') + '.', 'success');
 }
 
 function updateBadge() {
@@ -3394,6 +3667,9 @@ const IPO_SCENARIOS = [
 ];
 
 function showHallOfFame() {
+  prestigeData.endingsSeen = prestigeData.endingsSeen || {};
+  prestigeData.endingsSeen.halloffame = true;
+  saveCareer();
   const scenario = pickRandom(IPO_SCENARIOS);
   document.getElementById('hof-whatnext').innerHTML = `
     <div class="ending-whatnext-label">What you did next</div>
@@ -3409,6 +3685,7 @@ function showHallOfFame() {
     <div class="stat-row"><span class="stat-key">Conversion Bonus</span><span class="stat-val">+${(prestigeData.convBonus*100).toFixed(0)}%</span></div>
     <div class="stat-row"><span class="stat-key">Status</span><span class="stat-val" style="color:var(--yellow)">Legendary Founder</span></div>
   `;
+  renderCareerCard('hof-career');
   document.getElementById('hof-overlay').classList.remove('hidden');
 }
 
@@ -3426,6 +3703,9 @@ const BS_SCENARIOS = [
 ];
 
 function showNewsletterEnding() {
+  prestigeData.endingsSeen = prestigeData.endingsSeen || {};
+  prestigeData.endingsSeen.newsletter = true;
+  saveCareer();
   const companies = prestigeData.exitCompanies || [];
   const total = prestigeData.totalExitValue || 0;
   const names = ['Bootstrapped &amp; Bougie', 'Profitable by Default', 'No VC Required', 'Zero to Exit', 'Default Alive, Actually', 'The Ramen Billionaire', 'Compounding Slowly', 'Exit Interview', 'Cap Table of One'];
@@ -3467,6 +3747,7 @@ function showNewsletterEnding() {
       <span class="stat-key">Total Exits</span><span class="stat-val yellow">${fmt(total)}</span>
     </div>`;
 
+  renderCareerCard('nl-career');
   document.getElementById('newsletter-overlay').classList.remove('hidden');
   updateBadge();
 }
@@ -3478,18 +3759,110 @@ function triggerGameOver() {
   G.gameOver = true;
   document.getElementById('gameover-body').textContent =
     `After ${fmtNum(G.totalUsers)} total users and ${fmt(G.mrr)} in monthly revenue, ${G.companyName} ran out of cash. The dream lives on.`;
+  renderCareerCard('gameover-career');
   document.getElementById('gameover-overlay').classList.remove('hidden');
 }
 
+// Career always persists across runs now (names, exits, prestige bonuses). A failed
+// run no longer erases it — only the explicit "Reset Career" button does. The
+// keepPrestige arg is retained for call-site compatibility but no longer wipes.
 function restartGame(keepPrestige = false) {
   document.getElementById('gameover-overlay').classList.add('hidden');
   document.getElementById('hof-overlay').classList.add('hidden');
   document.getElementById('newsletter-overlay').classList.add('hidden');
-  if (!keepPrestige) {
-    prestigeData = { ipos: 0, bswins: 0, clickMult: 1, revMult: 1, convBonus: 0, bsConvBonus: 0, bsCashBonus: 0, totalExitValue: 0, exitCompanies: [] };
-  }
   updateBadge();
   startGame();
+}
+
+// Explicit, opt-in wipe of the entire persisted career. Wired to the start screen.
+function resetCareer() {
+  if (!confirm('Reset your entire founder career? This erases every collected company name, exit, and prestige bonus. This cannot be undone.')) return;
+  prestigeData = freshPrestigeData();
+  saveCareer();
+  updateBadge();
+  renderCollectionBoard();
+  renderStartSummary();
+  notify('Career reset. Clean slate.', 'info');
+}
+
+// ============================================================
+//  COMPANY COLLECTION + CAREER CARD
+// ============================================================
+function openCollection() {
+  renderCollectionBoard();
+  document.getElementById('collection-overlay').classList.remove('hidden');
+}
+function closeCollection() {
+  document.getElementById('collection-overlay').classList.add('hidden');
+}
+
+function renderCollectionBoard() {
+  const found = prestigeData.namesDiscovered || {};
+  const count = discoveredCount();
+  document.getElementById('collection-count').textContent =
+    `${count} / ${COMPANIES.length} discovered` + (prestigeData.secretUnlocked ? ' · secret unlocked 🦄' : '');
+
+  let cards = COMPANIES.map(c => {
+    const isFound = !!found[c.name];
+    if (isFound) {
+      return `<div class="coll-card found">
+        <div class="coll-emoji">${c.emoji}</div>
+        <div class="coll-name">${c.name}</div>
+        <div class="coll-desc">${c.desc}</div>
+      </div>`;
+    }
+    return `<div class="coll-card locked">
+      <div class="coll-emoji">❔</div>
+      <div class="coll-name">???</div>
+      <div class="coll-desc">Undiscovered</div>
+    </div>`;
+  }).join('');
+
+  // 26th slot: the secret company, revealed only once all 25 are found.
+  if (prestigeData.secretUnlocked) {
+    cards += `<div class="coll-card secret found">
+      <div class="coll-emoji">${SECRET_COMPANY.emoji}</div>
+      <div class="coll-name">${SECRET_COMPANY.name}</div>
+      <div class="coll-desc">${SECRET_COMPANY.desc}</div>
+    </div>`;
+  } else {
+    cards += `<div class="coll-card secret locked">
+      <div class="coll-emoji">🦄</div>
+      <div class="coll-name">Secret</div>
+      <div class="coll-desc">Discover all 25 to unlock</div>
+    </div>`;
+  }
+
+  document.getElementById('collection-grid').innerHTML = cards;
+}
+
+// Shareable founder-career summary, injected into ending overlays.
+function renderCareerCard(targetId) {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  const e = prestigeData.endingsSeen || {};
+  const endings =
+    `<span class="${e.newsletter ? '' : 'dim'}" title="Newsletter ending">📰</span> ` +
+    `<span class="${e.halloffame ? '' : 'dim'}" title="Hall of Fame">🏆</span> ` +
+    `<span class="${e.secret ? '' : 'dim'}" title="Secret company">🦄</span>`;
+  el.innerHTML = `
+    <div class="cc-title">Founder Career</div>
+    <div class="cc-row"><span>Companies founded</span><span class="cc-val">${prestigeData.companiesFounded || 0}</span></div>
+    <div class="cc-row"><span>Names collected</span><span class="cc-val">${discoveredCount()} / ${COMPANIES.length}</span></div>
+    <div class="cc-row"><span>Exits</span><span class="cc-val">${(prestigeData.exits || []).length}</span></div>
+    <div class="cc-row"><span>Best exit</span><span class="cc-val">${fmt(prestigeData.bestExit || 0)}</span></div>
+    <div class="cc-row"><span>Lifetime take</span><span class="cc-val">${fmt(prestigeData.lifetimeValue || 0)}</span></div>
+    <div class="cc-endings">${endings}</div>
+  `;
+}
+
+// Short one-liner shown under the Start button on the title screen.
+function renderStartSummary() {
+  const el = document.getElementById('start-career-summary');
+  if (!el) return;
+  const founded = prestigeData.companiesFounded || 0;
+  if (founded === 0) { el.textContent = ''; return; }
+  el.textContent = `${discoveredCount()}/${COMPANIES.length} names · ${(prestigeData.exits || []).length} exits · ${fmt(prestigeData.lifetimeValue || 0)} lifetime`;
 }
 
 // ============================================================
@@ -3497,6 +3870,7 @@ function restartGame(keepPrestige = false) {
 // ============================================================
 function showPathSelection() {
   // Legacy: now just shows the start screen
+  renderStartSummary();
   document.getElementById('path-overlay').classList.remove('hidden');
 }
 
@@ -3710,12 +4084,22 @@ function render() {
   // Click power
   const cp = Math.ceil(G.clickPower * prestigeData.clickMult);
   document.getElementById('click-power-display').textContent = fmtNum(cp);
+  // Active-click surge indicator (only when the auto engine is running to boost)
+  const surgeEl = document.getElementById('click-surge-display');
+  if (surgeEl) {
+    if (G.clickBoostStacks > 0 && G.autoRate > 0) {
+      const mult = (1 + G.clickBoostStacks * CLICK_BOOST_PER_STACK).toFixed(1);
+      surgeEl.textContent = `  ·  🔥 ${mult}× auto surge`;
+    } else {
+      surgeEl.textContent = '';
+    }
+  }
 
   // User stats
   document.getElementById('s-total-users').textContent = fmtNum(G.totalUsers);
   document.getElementById('s-paying').textContent = fmtNum(Math.round(G.payingUsers));
   document.getElementById('s-conv').textContent = fmtRate(G.convRate);
-  document.getElementById('s-churn').textContent = fmtRate(G.churnRate) + '/mo';
+  document.getElementById('s-churn').textContent = fmtRate(G.effectiveChurn || G.churnRate) + '/mo';
   document.getElementById('s-auto').textContent = G.autoRate.toFixed(1) + '/s';
 
   // Revenue stats
@@ -3958,6 +4342,10 @@ function render() {
 //  INIT
 // ============================================================
 function init() {
+  // Restore the persisted career (names collected, exits, prestige bonuses) before
+  // anything renders so the badge and collection board reflect it from frame one.
+  loadCareer();
+  updateBadge();
   // Start with a dummy game state so render() doesn't crash before path is chosen
   initGame('vc');
   renderUpgrades();
